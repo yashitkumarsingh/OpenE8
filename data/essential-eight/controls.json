@@ -1,0 +1,258 @@
+[
+  {
+    "strategy": "Application Control",
+    "slug": "application-control",
+    "description": "Prevent execution of unapproved/malicious programs, including executables, software libraries, scripts, and installer files.",
+    "requirements": [
+      {
+        "id": "E8-AC-ML1-01",
+        "level": "ML1",
+        "text": "Application control is implemented on workstations to restrict the execution of executables, software libraries, scripts, and installers to an approved set.",
+        "expectedEvidence": ["Application Control policy", "AppLocker or WDAC configuration log", "Workstation security audit export"],
+        "testType": ["manual", "script"],
+        "ismMapping": ["ISM-1507", "ISM-1643"]
+      },
+      {
+        "id": "E8-AC-ML2-01",
+        "level": "ML2",
+        "text": "Application control is implemented on workstations and servers to restrict execution to an approved set.",
+        "expectedEvidence": ["Server AppLocker/WDAC policy", "Server application audit logs", "Deployment configuration template"],
+        "testType": ["manual", "script", "api"],
+        "ismMapping": ["ISM-1508", "ISM-1644"]
+      },
+      {
+        "id": "E8-AC-ML2-02",
+        "level": "ML2",
+        "text": "Application control rulesets are reviewed at least annually to ensure only currently required software is allowed to execute.",
+        "expectedEvidence": ["Annual review minutes", "Approved software inventory sign-off", "Ruleset change logs"],
+        "testType": ["document_review"],
+        "ismMapping": ["ISM-1509"]
+      },
+      {
+        "id": "E8-AC-ML3-01",
+        "level": "ML3",
+        "text": "Application control is implemented on workstations and servers. Microsoft's recommended block rules are enabled and updated monthly.",
+        "expectedEvidence": ["WDAC block rules status", "Intune configuration report", "Update deployment log"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1510", "ISM-1511"]
+      }
+    ]
+  },
+  {
+    "strategy": "Patch Applications",
+    "slug": "patch-applications",
+    "description": "Remediate security vulnerabilities in applications. Use vendor-supported versions.",
+    "requirements": [
+      {
+        "id": "E8-PA-ML1-01",
+        "level": "ML1",
+        "text": "Security vulnerabilities in applications are patched within 2 weeks of release, or within 48 hours if an active exploit is reported.",
+        "expectedEvidence": ["Vulnerability scan report", "WSUS / Intune patching log", "Security advisory tracker"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1689", "ISM-1690"]
+      },
+      {
+        "id": "E8-PA-ML2-01",
+        "level": "ML2",
+        "text": "Web browsers, email clients, office suites, and PDF software are patched or updated within 2 weeks (or 48 hours for active exploits).",
+        "expectedEvidence": ["App version audit export", "Update configuration report", "Patching dashboard screenshot"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1691"]
+      },
+      {
+        "id": "E8-PA-ML3-01",
+        "level": "ML3",
+        "text": "All application security vulnerabilities are scanned daily, and vendor support status is audited monthly.",
+        "expectedEvidence": ["Daily Nessus/Qualys report", "Monthly vendor support audit record", "Software asset list"],
+        "testType": ["api", "manual"],
+        "ismMapping": ["ISM-1692", "ISM-1693"]
+      }
+    ]
+  },
+  {
+    "strategy": "Configure Microsoft Office Macro Settings",
+    "slug": "office-macros",
+    "description": "Block execution of macros from untrusted sources, particularly files downloaded from the internet.",
+    "requirements": [
+      {
+        "id": "E8-OM-ML1-01",
+        "level": "ML1",
+        "text": "Microsoft Office macros are disabled for users who do not have a demonstrated business need.",
+        "expectedEvidence": ["Active Directory GPO policy", "Intune settings catalog export", "Business need approval records"],
+        "testType": ["manual", "api"],
+        "ismMapping": ["ISM-1654", "ISM-1655"]
+      },
+      {
+        "id": "E8-OM-ML2-01",
+        "level": "ML2",
+        "text": "Macros in files from the internet are blocked from executing. Only digitally signed macros or macros from trusted locations are allowed.",
+        "expectedEvidence": ["GPO settings for macro execution block", "Digital signature verification logs", "Trusted locations list"],
+        "testType": ["script", "manual"],
+        "ismMapping": ["ISM-1656"]
+      },
+      {
+        "id": "E8-OM-ML3-01",
+        "level": "ML3",
+        "text": "Macro execution is blocked unless signed by trusted publishers. Macro security settings cannot be bypassed by users.",
+        "expectedEvidence": ["Intune administrative template policies", "User registry settings check script", "Macro execution attempts audit logs"],
+        "testType": ["script", "api"],
+        "ismMapping": ["ISM-1657", "ISM-1658"]
+      }
+    ]
+  },
+  {
+    "strategy": "User Application Hardening",
+    "slug": "user-app-hardening",
+    "description": "Configure web browsers and other common user applications to block flash, java, ads, and unapproved extensions.",
+    "requirements": [
+      {
+        "id": "E8-UH-ML1-01",
+        "level": "ML1",
+        "text": "Web browsers are configured to block Flash, Java, and other deprecated web plugins.",
+        "expectedEvidence": ["Browser policy export (Chrome/Edge ADMX)", "Intune device compliance check"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1400", "ISM-1401"]
+      },
+      {
+        "id": "E8-UH-ML2-01",
+        "level": "ML2",
+        "text": "Microsoft Office applications are configured to block activation of OLE packages, Flash, and active content.",
+        "expectedEvidence": ["Registry exports for Office trust settings", "GPO reports for Office hardening"],
+        "testType": ["script", "manual"],
+        "ismMapping": ["ISM-1402"]
+      },
+      {
+        "id": "E8-UH-ML3-01",
+        "level": "ML3",
+        "text": "Web browsers block third-party extensions and advertising unless explicitly whitelisted by administration.",
+        "expectedEvidence": ["Extension whitelist configuration policy", "Web filter and ad blocker deployment status"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1403", "ISM-1404"]
+      }
+    ]
+  },
+  {
+    "strategy": "Restrict Administrative Privileges",
+    "slug": "restrict-admin-privileges",
+    "description": "Restrict access to administrative privileges. Do not use admin accounts for reading email or web browsing.",
+    "requirements": [
+      {
+        "id": "E8-RP-ML1-01",
+        "level": "ML1",
+        "text": "Requests for administrative privileges are validated, and privileged accounts do not have access to email or web browsing.",
+        "expectedEvidence": ["Privileged user list", "No-email-for-admin policy verification", "IAM account setup templates"],
+        "testType": ["manual", "api"],
+        "ismMapping": ["ISM-1175", "ISM-1176"]
+      },
+      {
+        "id": "E8-RP-ML2-01",
+        "level": "ML2",
+        "text": "Administrative privileges are audited at least every six months. Local administrator accounts are disabled or managed via a solution like LAPS.",
+        "expectedEvidence": ["LAPS configuration logs", "Six-monthly privilege audit reports", "Local administrator inventory"],
+        "testType": ["api", "script", "document_review"],
+        "ismMapping": ["ISM-1177", "ISM-1178"]
+      },
+      {
+        "id": "E8-RP-ML3-01",
+        "level": "ML3",
+        "text": "Just-In-Time (JIT) access and short-lived administrative credentials are used for all admin tasks.",
+        "expectedEvidence": ["PIM/PAM configuration and access logs", "JIT workflow audit trail", "IAM policy configuration"],
+        "testType": ["api", "manual"],
+        "ismMapping": ["ISM-1179"]
+      }
+    ]
+  },
+  {
+    "strategy": "Patch Operating Systems",
+    "slug": "patch-os",
+    "description": "Patch vulnerabilities in operating systems of workstations, servers, and network devices.",
+    "requirements": [
+      {
+        "id": "E8-PO-ML1-01",
+        "level": "ML1",
+        "text": "Workstation and server operating systems are patched within 2 weeks of vendor release, or 48 hours for active exploits.",
+        "expectedEvidence": ["OS patch compliance dashboard", "Update history log export", "Vulnerability management dashboard screenshot"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1498", "ISM-1499"]
+      },
+      {
+        "id": "E8-PO-ML2-01",
+        "level": "ML2",
+        "text": "Operating systems on network devices are patched within 2 weeks of vendor release, or 48 hours for active exploits.",
+        "expectedEvidence": ["Firewall & switch version inventory", "Network device patching schedule", "Config review logs"],
+        "testType": ["manual", "script"],
+        "ismMapping": ["ISM-1500"]
+      },
+      {
+        "id": "E8-PO-ML3-01",
+        "level": "ML3",
+        "text": "Daily checking for new OS updates is automated, and unsupported OS versions are decommissioned/segregated.",
+        "expectedEvidence": ["Automatic patch checking config", "Lifecycle tracker for hardware/OS", "Vulnerability scanning engine configuration"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1501", "ISM-1502"]
+      }
+    ]
+  },
+  {
+    "strategy": "Multi-factor Authentication",
+    "slug": "mfa",
+    "description": "Implement multi-factor authentication for all users, especially for administrative accounts and remote access.",
+    "requirements": [
+      {
+        "id": "E8-MFA-ML1-01",
+        "level": "ML1",
+        "text": "Multi-factor authentication is used for all administrative access and remote access.",
+        "expectedEvidence": ["Entra ID conditional access policy export", "VPN MFA configuration", "Admin sign-in logs"],
+        "testType": ["api", "manual"],
+        "ismMapping": ["ISM-1503", "ISM-1504"]
+      },
+      {
+        "id": "E8-MFA-ML2-01",
+        "level": "ML2",
+        "text": "MFA is implemented for all users accessing web portals, cloud services, and collaboration platforms.",
+        "expectedEvidence": ["MFA status report for all users", "Tenant security default configs", "SaaS provider MFA checklists"],
+        "testType": ["api", "manual"],
+        "ismMapping": ["ISM-1505"]
+      },
+      {
+        "id": "E8-MFA-ML3-01",
+        "level": "ML3",
+        "text": "MFA is phishing-resistant (e.g. FIDO2 / Windows Hello for Business) and is enforced for all systems.",
+        "expectedEvidence": ["FIDO2 policy configuration screenshot", "Authentication methods usage report", "Hardware token register"],
+        "testType": ["api", "script"],
+        "ismMapping": ["ISM-1506", "ISM-1681"]
+      }
+    ]
+  },
+  {
+    "strategy": "Regular Backups",
+    "slug": "backups",
+    "description": "Perform regular backups of data, applications, and settings. Store backups offline or in a segregated manner.",
+    "requirements": [
+      {
+        "id": "E8-RB-ML1-01",
+        "level": "ML1",
+        "text": "Backups of critical data, applications, and settings are performed at least weekly.",
+        "expectedEvidence": ["Backup schedule config", "Weekly backup completion logs", "Backup console status reports"],
+        "testType": ["manual", "api"],
+        "ismMapping": ["ISM-1512", "ISM-1513"]
+      },
+      {
+        "id": "E8-RB-ML2-01",
+        "level": "ML2",
+        "text": "Backups are stored in an offline or segregated manner, and restore tests are conducted at least annually.",
+        "expectedEvidence": ["Air-gapped/ segregated backup architecture diagram", "Annual restore test execution log", "Backup configuration settings"],
+        "testType": ["document_review", "manual"],
+        "ismMapping": ["ISM-1514", "ISM-1515"]
+      },
+      {
+        "id": "E8-RB-ML3-01",
+        "level": "ML3",
+        "text": "Backups are protected with write-once-read-many (WORM) storage or immutable policies, and restore tests are conducted at least quarterly.",
+        "expectedEvidence": ["Immutable storage policy definition", "Quarterly restore test logs", "Access controls for backup repositories"],
+        "testType": ["api", "manual"],
+        "ismMapping": ["ISM-1516", "ISM-1517"]
+      }
+    ]
+  }
+]

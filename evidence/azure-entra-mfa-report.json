@@ -1,0 +1,16 @@
+{
+  "entra_mfa_status": "ENFORCED",
+  "conditional_access_policies": [
+    {
+      "id": "cap-001",
+      "name": "Require MFA for Admins",
+      "state": "enabled"
+    },
+    {
+      "id": "cap-002",
+      "name": "Require MFA for All Users",
+      "state": "enabled"
+    }
+  ],
+  "last_compliance_scan": "2026-07-06T03:20:01.844Z"
+}

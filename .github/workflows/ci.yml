@@ -1,0 +1,60 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'npm'
+
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Server Dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Install Client Dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Setup Database & Generate Prisma Client
+        run: |
+          cd server
+          npx prisma db push
+          node src/seed.js
+
+      - name: Run Server Tests & Coverage Audit
+        run: |
+          cd server
+          npm run test:coverage
+
+      - name: Audit Backend Dependencies
+        run: |
+          cd server
+          npm audit --audit-level=moderate
+
+      - name: Audit Frontend Dependencies
+        run: |
+          cd client
+          npm audit --audit-level=moderate
+
+      - name: Build Frontend Assets
+        run: |
+          cd client
+          npm run build

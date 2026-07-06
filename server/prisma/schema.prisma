@@ -1,0 +1,151 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model System {
+  id                 String            @id @default(uuid())
+  name               String
+  businessOwner      String
+  technicalOwner     String
+  environment        String            // Prod, UAT, Dev, etc.
+  platform           String            // Windows, Linux, M365, AWS, etc.
+  dataSensitivity    String            // Official, Sensitive, Protected
+  targetMaturity     String            // ML1, ML2, ML3
+  outOfScopeItems    String?
+  scopeJustification String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  assessments        Assessment[]
+  exceptions         Exception[]
+  remediations       RemediationTask[]
+}
+
+model Assessment {
+  id                String                 @id @default(uuid())
+  systemId          String
+  system            System                 @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  catalogVersionId  String?
+  catalogVersion    ControlCatalogVersion? @relation(fields: [catalogVersionId], references: [id])
+  status            String                 // PLANNING, SCOPING, COLLECTING_EVIDENCE, REVIEWING_CONTROLS, MANAGING_EXCEPTIONS, COMPLETED
+  createdBy         String
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  testResults       ControlTest[]
+  assessorSignature String?
+  assessorSignedAt  DateTime?
+  ownerSignature    String?
+  ownerSignedAt     DateTime?
+}
+
+model ControlTest {
+  id            String     @id @default(uuid())
+  assessmentId  String
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  requirementId String     // Reference to the library requirement (e.g., E8-MFA-ML2-001)
+  status        String     // PASSED, PARTIAL, FAILED, NOT_APPLICABLE, MET_VIA_COMPENSATING_CONTROL, PASS_CANDIDATE, FAIL_CANDIDATE, NEEDS_REVIEW
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  notes         String?
+  evidenceList  Evidence[]
+}
+
+model Evidence {
+  id               String      @id @default(uuid())
+  controlTestId    String
+  controlTest      ControlTest @relation(fields: [controlTestId], references: [id], onDelete: Cascade)
+  name             String
+  type             String      // FILE, API_EXPORT, SCRIPT_OUTPUT, ATTESTATION, TICKET, BACKUP_LOG, EXCEPTION_RECORD
+  urlOrPath        String?     // Reference path or URL
+  contentHash      String?
+  owner            String
+  dateCollected    DateTime    @default(now())
+  expiryDate       DateTime?
+  sourceSystem     String
+  confidenceLevel  String      // LOW, MEDIUM, HIGH
+  reviewer         String?
+  notes            String?
+  // Evidence review lifecycle
+  reviewDecision   String      @default("PENDING_REVIEW")  // PENDING_REVIEW, ACCEPTED, REJECTED, EXPIRED, SUPERSEDED, TAMPERED
+  reviewDecisionBy String?
+  reviewedAt       DateTime?
+  supersededById   String?     // ID of the evidence item that supersedes this one
+  createdAt        DateTime    @default(now())
+}
+
+model Exception {
+  id                           String   @id @default(uuid())
+  systemId                     String
+  system                       System   @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  requirementId                String   // The requirement this exception is for
+  status                       String   // PENDING, APPROVED, EXPIRED, REVOKED
+  riskStatement                String
+  compensatingControl          String
+  compensatingControlEfficacy  String?  // LOW, MEDIUM, HIGH — assessor-rated effectiveness
+  residualRisk                 String   // LOW, MEDIUM, HIGH, EXTREME
+  approvedBy                   String?
+  approvalReason               String?  // Documented rationale for granting the exception
+  approvedAt                   DateTime?
+  rejectedBy                   String?
+  rejectedAt                   DateTime?
+  reviewDate                   DateTime
+  expiryDate                   DateTime
+  temporaryOrPermanent         String   @default("TEMPORARY")  // TEMPORARY, PERMANENT
+  affectedUserCount            Int?     // Approximate number of users/systems affected
+  nextReviewOwner              String?  // Who is responsible for the next review
+  riskAcceptedBy               String?  // Formal risk owner who accepted the residual risk
+  riskAcceptedAt               DateTime?
+  auditTrace                   String?  // Audit trail logging actions
+  createdAt                    DateTime @default(now())
+}
+
+model RemediationTask {
+  id            String    @id @default(uuid())
+  systemId      String
+  system        System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  requirementId String
+  title         String
+  description   String
+  status        String    // BACKLOG, IN_PROGRESS, REVIEW, DONE
+  assignedTo    String?
+  dueDate       DateTime?
+  ticketLink    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String   @default("System User")
+  action     String   // CREATE, UPDATE, DELETE, IMPORT, EXCEPTION_APPROVE
+  entityType String   // System, Exception, RemediationTask, ControlTest
+  entityId   String
+  oldValue   String?
+  newValue   String?
+  comment    String?
+  createdAt  DateTime @default(now())
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   // ASSESSOR, SYSTEM_OWNER, AUDITOR
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ControlCatalogVersion {
+  id          String       @id @default(uuid())
+  name        String       // e.g. "Essential Eight Oct 2024"
+  source      String       // e.g. "https://cyber.gov.au/acsc/view-all-content/publications/essential-eight-maturity-model"
+  versionDate DateTime
+  hash        String?      // SHA-256 of the controls.json file at time of seeding (tamper-check)
+  createdAt   DateTime     @default(now())
+  assessments Assessment[]
+}

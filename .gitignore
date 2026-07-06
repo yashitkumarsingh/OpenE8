@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+dist/
+build/
+.cache/
+
+# Databases & Dev State
+*.db
+*.db-journal
+server/prisma/dev.db
+server/prisma/dev.db-journal
+
+# Evidence Uploads (Ignore actual files, but allow folder structure)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Code Coverage Reports
+coverage/
+server/coverage/
+client/coverage/
+.nyc_output/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Playwright E2E Test Artifacts
+playwright-report/
+test-results/
+.playwright/
+
+# Build & Local Cache Directories
+.vite/
+.eslintcache
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# User-Private Summary
+SUMMARY.md

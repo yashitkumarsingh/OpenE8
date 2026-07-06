@@ -1,0 +1,6 @@
+Veeam Backup & Replication Job Schedule
+System Scope: OpenE8 Records Management System (RMS)
+Execution: Daily at 23:00 AEST
+Target: Air-gapped immutable storage vault (WORM enabled)
+Retention: 365 Days
+Validation: Verification scripts check block integrity daily.

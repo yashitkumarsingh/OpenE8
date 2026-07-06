@@ -1,0 +1,30 @@
+{
+  "name": "opene8-governance",
+  "version": "1.0.0",
+  "description": "Essential Eight governance, evidence, exceptions, and maturity management",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm run install:server && npm run install:client",
+    "install:server": "cd server && npm install",
+    "install:client": "cd client && npm install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "db:setup": "cd server && npx prisma db push && node src/seed.js",
+    "db:seed": "cd server && node src/seed.js",
+    "start": "cd server && npm start",
+    "test": "npm run test:server",
+    "test:server": "cd server && npm run test",
+    "test:coverage": "cd server && npm run test:coverage",
+    "build:client": "cd client && npm run build",
+    "test:e2e": "playwright test",
+    "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && husky || true"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "husky": "^9.0.11"
+  }
+}

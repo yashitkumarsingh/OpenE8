@@ -1,0 +1,23 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "=== OpenE8 Pre-Commit Quality Gate ==="
+
+# 1. Run server tests
+echo "Running backend test suite..."
+npm run test:server
+if [ $? -ne 0 ]; then
+  echo "❌ Error: Backend tests failed. Commit aborted."
+  exit 1
+fi
+
+# 2. Check client build
+echo "Verifying client production build..."
+npm run build:client
+if [ $? -ne 0 ]; then
+  echo "❌ Error: Client build failed. Commit aborted."
+  exit 1
+fi
+
+echo "✅ Quality gate passed! Proceeding with commit..."
+exit 0

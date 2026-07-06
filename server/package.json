@@ -1,0 +1,25 @@
+{
+  "name": "opene8-api",
+  "version": "1.0.0",
+  "description": "Backend API for OpenE8 Governance OS",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "node tests/run-all-tests.js",
+    "test:coverage": "c8 --all --include src --exclude src/server.js --exclude src/seed.js --exclude src/routes --reporter=text --reporter=html node tests/run-all-tests.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:push": "npx prisma db push"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "c8": "^10.1.2",
+    "nodemon": "^3.1.0",
+    "prisma": "^5.14.0"
+  }
+}
