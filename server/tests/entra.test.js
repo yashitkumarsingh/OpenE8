@@ -1,6 +1,7 @@
-import { decodeIdToken, exchangeCodeForTokens } from '../src/entraService.js';
+import { validateIdToken, exchangeCodeForTokens } from '../src/entraService.js';
 import { loginWithEntra } from '../src/controllers/authController.js';
 import { prisma } from '../src/db.js';
+import crypto from 'crypto';
 
 function assert(condition, message) {
   if (!condition) {
@@ -25,44 +26,187 @@ function mockResponse() {
 
 export async function runEntraTests() {
   console.log('\nRunning Entra ID OIDC Service & Controller Tests...');
+  const originalFetch = global.fetch;
+
+  // Set up mock configuration variables
+  process.env.ENTRA_CLIENT_ID = 'test-client-id';
+  process.env.ENTRA_CLIENT_SECRET = 'test-client-secret';
+  process.env.ENTRA_TENANT_ID = 'test-tenant-id';
+  process.env.ENTRA_REDIRECT_URI = 'http://localhost:3000/auth/callback';
+
+  // 1. Generate test RSA keypair for token signatures
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+    modulusLength: 2048
+  });
+
+  const jwk = publicKey.export({ format: 'jwk' });
+
+  const validHeader = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT', kid: 'mock-key-id' })).toString('base64url');
+  const validPayload = Buffer.from(JSON.stringify({
+    email: 'entra-sso@opene8.gov.au',
+    name: 'Entra SSO User',
+    tid: 'test-tenant-id',
+    aud: 'test-client-id',
+    iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+    exp: Math.floor(Date.now() / 1000) + 3600
+  })).toString('base64url');
+
+  const dataToSign = `${validHeader}.${validPayload}`;
+  const signature = crypto.sign('sha256', Buffer.from(dataToSign), privateKey).toString('base64url');
+  const mockIdToken = `${validHeader}.${validPayload}.${signature}`;
 
   try {
-    // 1. decodeIdToken Unit Tests
-    const validHeader = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
-    const validPayload = Buffer.from(JSON.stringify({
-      email: 'entra-sso@opene8.gov.au',
-      name: 'Entra SSO User',
-      tid: 'microsoft-tenant-id'
-    })).toString('base64url');
-    const mockIdToken = `${validHeader}.${validPayload}.mocksignature`;
+    // Mock global fetch to handle both discovery keys and token exchange
+    global.fetch = async (url, options) => {
+      if (url.includes('/discovery/v2.0/keys')) {
+        return {
+          ok: true,
+          json: async () => ({
+            keys: [
+              {
+                ...jwk,
+                kid: 'mock-key-id',
+                use: 'sig'
+              }
+            ]
+          })
+        };
+      }
+      if (url.includes('/oauth2/v2.0/token')) {
+        assert(url.includes('test-tenant-id'), 'fetch token contains tenant ID');
+        assert(options.method === 'POST', 'fetch token uses POST');
+        return {
+          ok: true,
+          json: async () => ({ id_token: mockIdToken, access_token: 'mock-access-token' })
+        };
+      }
+      return { ok: false };
+    };
 
-    const decoded = decodeIdToken(mockIdToken);
-    assert(decoded.email === 'entra-sso@opene8.gov.au', 'decodeIdToken extracts email from claim');
-    assert(decoded.name === 'Entra SSO User', 'decodeIdToken extracts display name from claim');
-    assert(decoded.tenantId === 'microsoft-tenant-id', 'decodeIdToken extracts tenant ID from claim');
+    // 2. validateIdToken Unit Tests
+    const decoded = await validateIdToken(mockIdToken);
+    assert(decoded.email === 'entra-sso@opene8.gov.au', 'validateIdToken extracts email from claim');
+    assert(decoded.name === 'Entra SSO User', 'validateIdToken extracts display name from claim');
+    assert(decoded.tenantId === 'test-tenant-id', 'validateIdToken extracts tenant ID from claim');
 
-    // Test invalid segments
+    // Test invalid segments format
     try {
-      decodeIdToken('invalid-token');
+      await validateIdToken('invalid-token');
       assert(false, 'Should throw error for malformed token format');
     } catch (err) {
-      assert(err.message.includes('Invalid ID Token format'), 'decodeIdToken throws on invalid format');
+      assert(err.message.includes('Invalid ID Token format'), 'validateIdToken throws on invalid format');
     }
 
     // Test missing email claim
     const payloadNoEmail = Buffer.from(JSON.stringify({
       name: 'No Email User',
-      tid: 'tenant-id'
+      tid: 'test-tenant-id',
+      aud: 'test-client-id',
+      iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+      exp: Math.floor(Date.now() / 1000) + 3600
     })).toString('base64url');
-    const tokenNoEmail = `${validHeader}.${payloadNoEmail}.mocksignature`;
+    const dataNoEmail = `${validHeader}.${payloadNoEmail}`;
+    const sigNoEmail = crypto.sign('sha256', Buffer.from(dataNoEmail), privateKey).toString('base64url');
+    const tokenNoEmail = `${validHeader}.${payloadNoEmail}.${sigNoEmail}`;
     try {
-      decodeIdToken(tokenNoEmail);
+      await validateIdToken(tokenNoEmail);
       assert(false, 'Should throw error when email claim is missing');
     } catch (err) {
-      assert(err.message.includes('No email found'), 'decodeIdToken throws error when email is missing');
+      assert(err.message.includes('No email found'), 'validateIdToken throws error when email is missing');
     }
 
-    // 2. exchangeCodeForTokens Configuration Check
+    // Test signature verification failure (tampered payload)
+    const tamperedPayload = Buffer.from(JSON.stringify({
+      email: 'hacker-sso@opene8.gov.au',
+      name: 'Entra SSO User',
+      tid: 'test-tenant-id',
+      aud: 'test-client-id',
+      iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+      exp: Math.floor(Date.now() / 1000) + 3600
+    })).toString('base64url');
+    const tamperedToken = `${validHeader}.${tamperedPayload}.${signature}`;
+    try {
+      await validateIdToken(tamperedToken);
+      assert(false, 'Should throw error on signature mismatch');
+    } catch (err) {
+      assert(err.message.includes('signature verification'), 'validateIdToken rejects tampered signature');
+    }
+
+    // Test audience mismatch
+    const payloadBadAud = Buffer.from(JSON.stringify({
+      email: 'entra-sso@opene8.gov.au',
+      tid: 'test-tenant-id',
+      aud: 'wrong-client-id',
+      iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+      exp: Math.floor(Date.now() / 1000) + 3600
+    })).toString('base64url');
+    const tokenBadAud = `${validHeader}.${payloadBadAud}.${crypto.sign('sha256', Buffer.from(`${validHeader}.${payloadBadAud}`), privateKey).toString('base64url')}`;
+    try {
+      await validateIdToken(tokenBadAud);
+      assert(false, 'Should throw error on audience mismatch');
+    } catch (err) {
+      assert(err.message.includes('Audience mismatch'), 'validateIdToken rejects wrong audience');
+    }
+
+    // Test issuer mismatch
+    const payloadBadIss = Buffer.from(JSON.stringify({
+      email: 'entra-sso@opene8.gov.au',
+      aud: 'test-client-id',
+      iss: 'https://login.evil.com/v2.0',
+      exp: Math.floor(Date.now() / 1000) + 3600
+    })).toString('base64url');
+    const tokenBadIss = `${validHeader}.${payloadBadIss}.${crypto.sign('sha256', Buffer.from(`${validHeader}.${payloadBadIss}`), privateKey).toString('base64url')}`;
+    try {
+      await validateIdToken(tokenBadIss);
+      assert(false, 'Should throw error on issuer mismatch');
+    } catch (err) {
+      assert(err.message.includes('Issuer mismatch'), 'validateIdToken rejects wrong issuer');
+    }
+
+    // Test token expired
+    const payloadExpired = Buffer.from(JSON.stringify({
+      email: 'entra-sso@opene8.gov.au',
+      tid: 'test-tenant-id',
+      aud: 'test-client-id',
+      iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+      exp: Math.floor(Date.now() / 1000) - 600
+    })).toString('base64url');
+    const tokenExpired = `${validHeader}.${payloadExpired}.${crypto.sign('sha256', Buffer.from(`${validHeader}.${payloadExpired}`), privateKey).toString('base64url')}`;
+    try {
+      await validateIdToken(tokenExpired);
+      assert(false, 'Should throw error on expired token');
+    } catch (err) {
+      assert(err.message.includes('Token is expired'), 'validateIdToken rejects expired token');
+    }
+
+    // Test token not active yet
+    const payloadNotActive = Buffer.from(JSON.stringify({
+      email: 'entra-sso@opene8.gov.au',
+      tid: 'test-tenant-id',
+      aud: 'test-client-id',
+      iss: 'https://login.microsoftonline.com/test-tenant-id/v2.0',
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      nbf: Math.floor(Date.now() / 1000) + 600
+    })).toString('base64url');
+    const tokenNotActive = `${validHeader}.${payloadNotActive}.${crypto.sign('sha256', Buffer.from(`${validHeader}.${payloadNotActive}`), privateKey).toString('base64url')}`;
+    try {
+      await validateIdToken(tokenNotActive);
+      assert(false, 'Should throw error on inactive token');
+    } catch (err) {
+      assert(err.message.includes('Token is not active yet'), 'validateIdToken rejects inactive token');
+    }
+
+    // Test missing JWK key matching
+    const headerBadKid = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT', kid: 'unknown-key-id' })).toString('base64url');
+    const tokenBadKid = `${headerBadKid}.${validPayload}.${crypto.sign('sha256', Buffer.from(`${headerBadKid}.${validPayload}`), privateKey).toString('base64url')}`;
+    try {
+      await validateIdToken(tokenBadKid);
+      assert(false, 'Should throw error on unknown kid');
+    } catch (err) {
+      assert(err.message.includes('No matching Microsoft Key ID found'), 'validateIdToken rejects unknown key ID');
+    }
+
+    // 3. exchangeCodeForTokens Configuration Check
     process.env.ENTRA_CLIENT_ID = '';
     try {
       await exchangeCodeForTokens('some-auth-code');
@@ -70,35 +214,18 @@ export async function runEntraTests() {
     } catch (err) {
       assert(err.message.includes('configuration is missing'), 'exchangeCodeForTokens checks for client ID configuration');
     }
-
-    // Restore environment values for tests
     process.env.ENTRA_CLIENT_ID = 'test-client-id';
-    process.env.ENTRA_CLIENT_SECRET = 'test-client-secret';
-    process.env.ENTRA_TENANT_ID = 'test-tenant-id';
-    process.env.ENTRA_REDIRECT_URI = 'http://localhost:3000/auth/callback';
-
-    // Mock global fetch
-    const originalFetch = global.fetch;
-    global.fetch = async (url, options) => {
-      assert(url.includes('test-tenant-id'), 'fetch target url contains configured tenant ID');
-      assert(options.method === 'POST', 'fetch target method is POST');
-      assert(options.headers['Content-Type'].includes('x-www-form-urlencoded'), 'headers content type is form-urlencoded');
-      return {
-        ok: true,
-        json: async () => ({ id_token: mockIdToken, access_token: 'mock-access-token' })
-      };
-    };
 
     const tokens = await exchangeCodeForTokens('mock-code');
     assert(tokens.id_token === mockIdToken, 'exchangeCodeForTokens fetches tokens payload successfully');
 
-    // 3. loginWithEntra Controller Test - Missing auth code
+    // 4. loginWithEntra Controller Test - Missing auth code
     const ctrlReqNoCode = { body: {} };
     const ctrlResNoCode = mockResponse();
     await loginWithEntra(ctrlReqNoCode, ctrlResNoCode);
     assert(ctrlResNoCode.statusCode === 400, 'loginWithEntra returns 400 for missing code');
 
-    // 4. loginWithEntra Controller Test - Auto-provisioning flow
+    // 5. loginWithEntra Controller Test - Auto-provisioning flow
     const ctrlReqValid = { body: { code: 'mock-code' } };
     const ctrlResValid = mockResponse();
     await loginWithEntra(ctrlReqValid, ctrlResValid);
@@ -111,8 +238,7 @@ export async function runEntraTests() {
     const dbUser = await prisma.user.findUnique({ where: { email: 'entra-sso@opene8.gov.au' } });
     assert(dbUser !== null, 'SSO user record auto-created in database successfully');
 
-    // 5. loginWithEntra Controller Test - Match existing user flow
-    // Change provisioned user's role to SYSTEM_OWNER to test that existing users keep their roles
+    // 6. loginWithEntra Controller Test - Match existing user flow
     await prisma.user.update({
       where: { email: 'entra-sso@opene8.gov.au' },
       data: { role: 'SYSTEM_OWNER' }
@@ -129,6 +255,7 @@ export async function runEntraTests() {
 
     console.log('All Entra ID OIDC Tests passed successfully!');
   } catch (err) {
+    global.fetch = originalFetch;
     console.error('Entra ID tests failed:', err);
     throw err;
   }

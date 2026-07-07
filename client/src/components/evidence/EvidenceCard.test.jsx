@@ -27,7 +27,7 @@ describe('EvidenceCard Component', () => {
     expect(screen.getByText('Backup logs.csv')).toBeInTheDocument();
     expect(screen.getByText('Source: Veeam Backup')).toBeInTheDocument();
     expect(screen.getByText('"Weekly backup logs"')).toBeInTheDocument();
-    expect(screen.getByRole('link')).toHaveAttribute('href', 'http://localhost:5001/uploads/logs.csv');
+    expect(screen.getByTitle('Download/View file')).toBeInTheDocument();
   });
 
   it('displays VERIFIED when verifyState has verified set to true', () => {
@@ -81,5 +81,31 @@ describe('EvidenceCard Component', () => {
     fireEvent.click(screen.getByTitle('Delete evidence'));
     expect(window.confirm).toHaveBeenCalled();
     expect(onDelete).toHaveBeenCalledWith('ev-1');
+  });
+
+  it('triggers download fetching when download button is clicked', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        blob: () => Promise.resolve(new Blob(['hello'], { type: 'text/csv' }))
+      })
+    );
+    window.URL.createObjectURL = vi.fn(() => 'mock-url');
+    window.URL.revokeObjectURL = vi.fn();
+
+    render(
+      <EvidenceCard 
+        evidence={mockEvidence} 
+        verifyState={null} 
+        onVerify={() => {}} 
+        onDelete={() => {}} 
+        isCompleted={false} 
+      />
+    );
+
+    const downloadBtn = screen.getByTitle('Download/View file');
+    fireEvent.click(downloadBtn);
+
+    expect(fetchSpy).toHaveBeenCalledWith('/api/evidence/ev-1/download', expect.any(Object));
   });
 });

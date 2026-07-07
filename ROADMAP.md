@@ -2,23 +2,26 @@
 
 ## Product Vision
 
-**OpenE8** is the premier open-source governance operating system designed to elevate cybersecurity compliance from a static, spreadsheets-based review to a **continuous, live-audited operational lifecycle**. 
+**OpenE8** is an open-source Essential Eight assessment workspace designed to elevate cybersecurity compliance from a static, spreadsheets-based review to a structured, auditable evidence and remediation lifecycle. 
 
-The ultimate goal of OpenE8 is to provide organizations with a single, cryptographically verifiable portal that orchestrates:
-$$\text{Continuous Scans} \longrightarrow \text{Automated Verification} \longrightarrow \text{Evidence Traceability} \longrightarrow \text{Exceptions Lifecycle} \longrightarrow \text{Bi-directional Remediation}$$
+The target execution flow sequences governance validation stages cleanly:
+$$\text{Evidence Imports / Candidate Findings} \longrightarrow \text{Assessor Review} \longrightarrow \text{Exceptions Lifecycle} \longrightarrow \text{Remediation Tracking} \longrightarrow \text{Dual Sign-off}$$
+
+*Over time, OpenE8 will evolve into a continuous evidence and remediation governance platform:*
+$$\text{Continuous Collectors} \longrightarrow \text{Automated Evidence Refresh} \longrightarrow \text{Compliance Drift Detection}$$
 
 ---
 
 ## Current Operational State
 
-The core framework of OpenE8 is currently functional and tested, featuring the following capabilities:
+The core framework of OpenE8 features the following capabilities:
 
 ### 1. Decoupled Business Rules Engine
-* **Stateless calculations**: All scores and blocker analysis computed deterministically inside `maturityEngine.js`, fully isolated from Prisma and Express database side effects.
+* **Stateless calculations**: All scores and blocker analysis computed deterministically inside `maturityEngine.js`, fully isolated from database or transport side effects.
 * **Exceptions override gates**: Evaluates compensating controls and approved active exception log expiries to calculate assessed maturity versus technical raw maturity postures.
 
 ### 2. Authentication & Governance Controls
-* **Microsoft Entra ID SSO**: Completed integration of the OIDC authorization code flow, auto-provisioning new user records with default roles, and rendering a premium glassmorphic Microsoft button.
+* **Microsoft Entra ID SSO**: Authorization-code prototype implemented; production-grade cryptographic token signature checks using JWKS dynamically configured.
 * **Role-Based Access Control (RBAC)**: Middleware permissions check locking routes and frontend forms based on active roles (`ASSESSOR`, `SYSTEM_OWNER`, `AUDITOR`).
 * **Session Revocation**: Local memory-based token blacklist registry and POST `/api/auth/logout` endpoint.
 * **Password Hashing**: Native pbkdf2-HMAC-SHA512 hashing (310,000 iterations) with timing-safe validation comparisons.
@@ -31,70 +34,85 @@ The core framework of OpenE8 is currently functional and tested, featuring the f
 ### 4. Regulatory Evidence Traceability & Sign-offs
 * **Cryptographic Fingerprinting**: Files uploaded are hashed via SHA-256. Assessors can verify evidence integrity on-demand using timing-safe checksum recalculation checks.
 * **Dual-Signature Sign-off**: Assessments are sealed and locked against modifications when both the Lead Assessor and System Owner submit signatures under Stage 6.
-* **Zero-Dependency Audit Log Export**: streams chronological change trails as authenticated, escaped CSV payloads.
-
-### 5. Verified Code Quality & Coverage Gates
-* **Backend Coverage**: Statement coverage verified at **92.52%** and branch coverage at **80.26%**.
-* **Frontend Coverage**: Statement coverage verified at **82.11%** using Vitest components testing.
-* **End-to-End Validation**: Automated via Playwright browser integration tests.
+* **Zero-Dependency Audit Log Export**: Streams chronological change trails as authenticated, escaped CSV payloads.
 
 ---
 
-## Future Roadmap
+## Sprint 0.5: Positioning Cleanup (Completed)
+- [x] **SSO Experimental Posture**: Configure environment toggles to control SSO availability flags.
+- [x] **Starter Catalogue Notation**: Demarcate seeded requirements as starter catalogues.
+- [x] **Alpha Disclaimers**: Add disclaimers inside the UI and generated reports warning that OpenE8 is not an authoritative certification tool.
+- [x] **Documentation Clarification**: Add `SECURITY_LIMITATIONS.md` or equivalent security disclosures to docs.
 
 ---
 
-## Phase 1: SSO & Security Hardening (Current Sprint)
-
-Focuses on verifying OIDC integrations, hardening the token authentication boundaries, and scaling the persistence layer.
-
-### A. Microsoft Entra ID SSO Hardening
-- [ ] **Configurable Tenant Mapping**: Allow configuration of custom Azure Tenant IDs instead of multi-tenant fallback modes.
-- [ ] **App Roles Mapping**: Extract Active Directory security groups or Entra ID App Roles (`Assessor`, `SystemOwner`, `Auditor`) from JWT claims to assign local user permissions dynamically.
-- [ ] **E2E Playwright SSO Journeys**: Implement simulated browser tests verifying authorization callbacks and credential parsing.
-
-### B. Production Security Hardening
-- [ ] **Secure Cookie Storage (`httpOnly`)**: Store session JWT tokens in `httpOnly`, `Secure`, `SameSite=Strict` cookies to block XSS vector access.
-- [ ] **Revocation Registry Synchronization (Redis)**: Deploy a Redis cache layer to store revoked tokens across clustered, multi-node instances.
-- [ ] **Memory-Hard Password Hashing (Argon2id)**: Migrate local user password hashing from PBKDF2 to `argon2id` to prevent ASIC/GPU parallelized brute-force attacks.
-
-### C. Database Layer Scalability
-- [ ] **PostgreSQL Migration**: Swap SQLite datasource configuration to PostgreSQL inside `schema.prisma` to support high concurrency and row-level write locking.
+## Sprint 1: Trust & Security Hardening (Completed)
+- [x] **Discovery-based Signature Verification**: Implement OIDC JWT verification using remote public keys (`jwks_uri`) and validate the `aud` (audience), `iss` (issuer), `exp` (expiry), and `nbf` (not-before) claims.
+- [x] **Route-Level Role Authorization (RBAC)**: Enforce `requireRole()` checks across all state-modifying write routes (Systems, Assessments, Control Tests, Exceptions, Remediations, Importers, and Evidence).
+- [x] **Fail Closed on Missing JWT Secret**: Halt server startup in production if `JWT_SECRET` is not set or matches the development fallback key.
+- [x] **Restricted Evidence Access**: Remove public static serving of `/uploads` files. Provide a secure, authenticated download route that checks user ownership before sending files.
+- [x] **File Control Gates**: Enforce a strict file-type allowlist (`.png`, `.jpg`, `.jpeg`, `.pdf`, `.json`, `.csv`, `.txt`) and 10MB size limits on evidence uploads.
 
 ---
 
-## Phase 2: Continuous Auditing & Integrations (Next 3–6 Months)
+## Sprint 2: Compliance Correctness & ASD Alignment (In Progress)
 
-Transitions OpenE8 from manual assessments to continuous compliance pipelines and integrates with developer toolchains.
+Enhances the fidelity of the control catalogue and aligns terminology with official ASD assessment standards.
 
-### A. Continuous Auditing Pipelines (API Hooks)
-- [ ] **Scheduled Scan Sinks**: Expose dedicated webhook endpoints for automated CI/CD pipelines (e.g. GitHub Actions, GitLab CI) and agent scripts to POST Nessus, AWS Config, or Defender logs directly into assessments.
-- [ ] **Live Compliance Drift Alerts**: Detect status drifts (e.g. a control test transitioning from `PASSED` to `FAILED` due to an uploaded vulnerability scan) and immediately trigger Slack, Teams, or email warnings.
+### A. Control Catalogue Fidelity
+- [x] **Starter Catalogue Demarcation**: Clearly label current controls as a "Starter control catalogue inspired by ASD guidance" rather than an authoritative reproduction.
+- [ ] **Detailed Timeframe Scopes**: Incorporate explicit daily/weekly/fortnightly scanning controls and 48-hour/two-week/one-month patching windows inside the controls catalogue schema.
 
-### B. Bi-Directional Remediation Integration (Jira / ServiceNow / GitHub Issues)
-- [ ] **Remediation Task Sync**: Automatically open Jira tickets or GitHub Issues whenever a compliance import creates a `BACKLOG` remediation task.
-- [ ] **Status Pull Hooks**: Poll issue-tracking API status points (e.g., ticket closed in Jira) to automatically transition Remediation Board tasks to `DONE`.
+### B. Standardised Assessment Outcomes
+- [ ] **ASD-Aligned Status Options**: Update scoring models and control tests status options to match ASD's official assessment process guide:
+  - `NOT_ASSESSED`
+  - `EFFECTIVE`
+  - `ALTERNATE_CONTROL`
+  - `INEFFECTIVE`
+  - `NO_VISIBILITY`
+  - `NOT_IMPLEMENTED`
+  - `NOT_APPLICABLE`
 
-### C. Automated Exception Lifecycle Management
-- [ ] **Proactive Expiry Alerts**: Automatically notify System Owners and Assessors 30 days prior to compensating controls or approved exception expirations.
-- [ ] **Automated Uplift Backlog Triggers**: If an exception expires without renewal, automatically trigger a new Remediation Task to resolve the technical control deficit.
+### C. Stricter Exception Scoring
+- [ ] **Compensating Control Validation**: Tighten `maturityEngine.js` exception gates. Require an active exception to have a documented `compensatingControlEfficacy` of `HIGH`, active risk owner approval, and a valid unexpired date before adjusting assessed maturity metrics.
+- [ ] **Evidence Quality Scales**: Map evidence files to quality scores (`EXCELLENT`, `GOOD`, `FAIR`, `POOR`) as recommended by the ASD Guide.
 
 ---
 
-## Phase 3: Enterprise Compliance & Multi-Framework Auditing (12+ Months)
+## Sprint 3: Evidence Package & Reporting Exports (Planned)
 
-Establishes OpenE8 as an enterprise compliance mesh mapping to global security frameworks.
+Supports assessors with packaged, cryptographically-signed compliance exports.
 
-### A. Interactive Evidence Traceability Graph
-- [ ] **Auditor Explorer Node Graph**: Enhance the SVG node graph to map compliance pipelines from Requirement -> Evidence Document (including SHA-256 validation status) -> Active Exception rationale -> Active Remediation Ticket.
-- [ ] **Cryptographic Compliance Verification Bundle**: Export a zipped compliance package containing signed audit trails (CSV), Markdown executive summaries, raw evidence file attachments, and cryptographic checksum validation reports.
+### A. Assessment Verification Exports
+- [ ] **Evidence ZIP Packager**: Compile a ZIP file containing the unencrypted evidence documents, a `manifest.json` cataloguing hashes for each file, `assessment-summary.md`, `audit-log.csv`, and `report.md`.
+- [ ] **Unified Executive Report**: Compile a comprehensive report (Markdown/JSON) embedding scope parameters, sample size, limitations, evidence quality scores, and active exception statements.
+- [ ] **Signed Assessment Manifest**: Generate a signed assessment manifest containing SHA-256 hashes of assessment metadata, evidence files, and audit logs to support independent verification.
 
-### B. Regulatory Multi-Framework Mapping
-- [ ] **Unified Control Mapping Hub**: Map core compliance checks beyond the ASD Essential Eight to:
-  * **ISO/IEC 27001:2022** (Annex A Controls)
-  * **NIST SP 800-53 Rev 5**
-  * **SOC 2 Type II** (Trust Services Criteria)
-  * **CIS Critical Security Controls v8**
+---
 
-### C. Enterprise Group Rollups (CISO Dashboard)
-- [ ] **Cross-System Compliance Dashboards**: Allow enterprise CISOs to view compliance levels, outstanding exceptions, and residual risk indexes across dozens of organizational units and systems in a unified, hierarchical view.
+## Sprint 4: Open-Source Readiness (Planned)
+
+Provides deployment manuals and community guides to prepare OpenE8 for its public `v0.1.0-alpha` release.
+
+### A. Release Preparation
+- [ ] **Sample Data Pack**: Seed the database with a pre-configured multi-stage demo system scope and mock evidence.
+- [ ] **Deployment Manual**: Add guides highlighting local-only development configurations vs. production-hardened Docker Compose and PostgreSQL configurations.
+- [ ] **GitHub Issues Board**: Translate these roadmap items into public repository issues.
+
+---
+
+## Sprint 5: Continuous Collectors and Integrations (Future Roadmap)
+- [ ] **API Sinks**: Enable continuous scanner log push integrations.
+- [ ] **Ticket System Sync**: Integrate bi-directionally with Jira or GitHub Issues.
+- [ ] **Asymmetric manifest signatures**: Upgrade manifest signing to asymmetric key-pairs (e.g. Ed25519).
+
+---
+
+## v0.1.0-alpha Release Gates
+A release candidate will not be published until all of the following gates pass:
+1. **Zero public uploads**: Direct static directory sharing disabled.
+2. **Backend RBAC active**: Every write endpoint protected by authorization checks.
+3. **SSO Hardened**: Production JWT validation enabled and fully tested.
+4. **Starter catalogue label**: Disclaimer warning shown on catalogue views.
+5. **No check-in failures**: Unit/integration tests pass, and dependency audits report zero vulnerabilities.
+6. **Walkthrough validated**: A complete assessment lifecycle (scope $\rightarrow$ evidence review $\rightarrow$ dual sign-off lockout) executes end-to-end.

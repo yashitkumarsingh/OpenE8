@@ -71,7 +71,7 @@ Validation: Verification scripts check block integrity daily.`;
   // Seed the catalog version record (Essential Eight October 2024)
   const catalogVersion = await prisma.controlCatalogVersion.create({
     data: {
-      name: 'Essential Eight Maturity Model — October 2024',
+      name: 'Starter Catalogue (Inspired by ASD Essential 8 October 2024)',
       source: 'https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model',
       versionDate: new Date('2024-10-01'),
       hash: catalogHash,

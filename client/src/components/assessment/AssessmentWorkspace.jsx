@@ -103,7 +103,10 @@ export default function AssessmentWorkspace({
         
         {/* LEFT DIRECTORY: REQUIREMENTS LIST */}
         <div className="glass-panel p-5 rounded-xl border border-slate-800 lg:col-span-4 h-[600px] flex flex-col bg-slate-900/20">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3.5">Essential 8 Catalog</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Essential 8 Catalog</h3>
+          <p className="text-[9px] text-slate-500 mb-3 leading-tight italic">
+            Starter control catalogue inspired by ASD guidance. Not an authoritative reproduction of ASD's official maturity model.
+          </p>
           <div className="flex-1 overflow-y-auto space-y-4 pr-1">
             {catalog.map(strategy => (
               <div key={strategy.slug} className="space-y-1.5">

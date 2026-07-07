@@ -1,10 +1,11 @@
 import express from 'express';
-import { deleteEvidence, verifyEvidenceIntegrity } from '../controllers/controlTestsController.js';
-import { requireAuth } from '../authMiddleware.js';
+import { deleteEvidence, verifyEvidenceIntegrity, downloadEvidence } from '../controllers/controlTestsController.js';
+import { requireAuth, requireRole } from '../authMiddleware.js';
 
 const router = express.Router();
 
-router.delete('/:id', requireAuth, deleteEvidence);
-router.post('/:id/verify', requireAuth, verifyEvidenceIntegrity);
+router.delete('/:id', requireAuth, requireRole(['ASSESSOR', 'SYSTEM_OWNER']), deleteEvidence);
+router.post('/:id/verify', requireAuth, requireRole(['ASSESSOR', 'SYSTEM_OWNER']), verifyEvidenceIntegrity);
+router.get('/:id/download', requireAuth, downloadEvidence);
 
 export default router;

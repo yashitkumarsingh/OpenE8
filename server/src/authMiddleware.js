@@ -1,6 +1,9 @@
 import crypto from 'crypto';
 import { prisma } from './db.js';
 
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'opene8-governance-secret-key-1337')) {
+  throw new Error('JWT_SECRET must be configured in production with a custom secure key.');
+}
 const SECRET = process.env.JWT_SECRET || 'opene8-governance-secret-key-1337';
 
 // 1. Password Hashing via native PBKDF2

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { prisma } from '../db.js';
 import { hashPassword, verifyPassword, generateToken, revokeToken } from '../authMiddleware.js';
-import { exchangeCodeForTokens, decodeIdToken } from '../entraService.js';
+import { exchangeCodeForTokens, validateIdToken } from '../entraService.js';
 
 export async function register(req, res) {
   try {
@@ -109,7 +109,7 @@ export async function loginWithEntra(req, res) {
     }
 
     const tokenResponse = await exchangeCodeForTokens(code, redirectUri);
-    const decoded = decodeIdToken(tokenResponse.id_token);
+    const decoded = await validateIdToken(tokenResponse.id_token);
 
     // Auto-provision user if they do not exist
     let user = await prisma.user.findUnique({ where: { email: decoded.email } });

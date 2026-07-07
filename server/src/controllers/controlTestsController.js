@@ -61,6 +61,19 @@ export async function addEvidence(req, res) {
 
     if (fileData && fileData.base64 && fileData.filename) {
       const buffer = Buffer.from(fileData.base64, 'base64');
+      
+      // 10MB size limit check
+      if (buffer.length > 10 * 1024 * 1024) {
+        return res.status(400).json({ error: 'File size exceeds maximum permitted limit of 10MB.' });
+      }
+
+      // File type whitelist check
+      const ext = path.extname(fileData.filename).toLowerCase();
+      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.pdf', '.json', '.csv', '.txt'];
+      if (!allowedExtensions.includes(ext)) {
+        return res.status(400).json({ error: `Unsupported file extension. Allowed extensions are: ${allowedExtensions.join(', ')}` });
+      }
+
       const filename = `${Date.now()}-${fileData.filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       const filePath = path.join(uploadsDir, filename);
       if (!fs.existsSync(uploadsDir)) {
@@ -183,5 +196,43 @@ export async function verifyEvidenceIntegrity(req, res) {
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+}
+
+export async function downloadEvidence(req, res) {
+  try {
+    const evidence = await prisma.evidence.findUnique({
+      where: { id: req.params.id }
+    });
+    if (!evidence) {
+      return res.status(404).json({ error: 'Evidence not found' });
+    }
+
+    if (!evidence.urlOrPath || !evidence.urlOrPath.startsWith('/uploads/')) {
+      return res.status(400).json({ error: 'Evidence has no associated file download.' });
+    }
+
+    const filename = path.basename(evidence.urlOrPath);
+    const filePath = path.join(uploadsDir, filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Evidence file not found on disk.' });
+    }
+
+    // Restrict file-type content type headers
+    const ext = path.extname(filename).toLowerCase();
+    let contentType = 'application/octet-stream';
+    if (ext === '.pdf') contentType = 'application/pdf';
+    else if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.json') contentType = 'application/json';
+    else if (ext === '.csv') contentType = 'text/csv';
+    else if (ext === '.txt') contentType = 'text/plain';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.sendFile(filePath);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }

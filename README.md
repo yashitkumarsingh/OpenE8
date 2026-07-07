@@ -2,6 +2,8 @@
 
 > **Open-source Essential Eight governance, evidence, exceptions, and maturity management for Australian organisations.**
 
+![OpenE8 Compliance Desk](docs/images/dashboard.png)
+
 ---
 
 > [!NOTE]

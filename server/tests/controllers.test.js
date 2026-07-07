@@ -1,6 +1,6 @@
 import { getSystems, createSystem, getSystemById, updateSystem, getSystemReport, deleteSystem, exportAuditLogs } from '../src/controllers/systemsController.js';
 import { createAssessment, updateAssessment, signOffAssessment } from '../src/controllers/assessmentsController.js';
-import { updateControlTest, addEvidence, deleteEvidence, verifyEvidenceIntegrity } from '../src/controllers/controlTestsController.js';
+import { updateControlTest, addEvidence, deleteEvidence, verifyEvidenceIntegrity, downloadEvidence } from '../src/controllers/controlTestsController.js';
 import { getExceptions, createException, updateException, deleteException } from '../src/controllers/exceptionsController.js';
 import { getRemediations, createRemediation, updateRemediation, deleteRemediation } from '../src/controllers/remediationsController.js';
 import { prisma } from '../src/db.js';
@@ -135,6 +135,49 @@ async function runControllerTests() {
     await verifyEvidenceIntegrity({ params: { id: testEvidenceId } }, resVerifyEvidenceSuccess);
     assert(resVerifyEvidenceSuccess.statusCode === 200, 'verifyEvidenceIntegrity should return 200');
     assert(resVerifyEvidenceSuccess.body.verified === true, 'Evidence should pass integrity checks when unmodified');
+
+    // 8c. Test downloadEvidence (Successful path)
+    const resDownloadSuccess = mockResponse();
+    resDownloadSuccess.sendFile = (filePath) => {
+      resDownloadSuccess.sendFileCalledWith = filePath;
+      return resDownloadSuccess;
+    };
+    await downloadEvidence({ params: { id: testEvidenceId } }, resDownloadSuccess);
+    assert(resDownloadSuccess.headers['Content-Disposition'].includes('attachment'), 'downloadEvidence should set content disposition attachment header');
+    assert(resDownloadSuccess.sendFileCalledWith !== undefined, 'downloadEvidence should invoke sendFile to stream back resources');
+
+    // 8d. Test downloadEvidence (Missing ID)
+    const resDownloadMissing = mockResponse();
+    await downloadEvidence({ params: { id: 'invalid-evidence-uuid' } }, resDownloadMissing);
+    assert(resDownloadMissing.statusCode === 404, 'downloadEvidence for missing resource returns status 404');
+
+    // 8e. Test addEvidence file extension whitelist rejection
+    const resAddEvidenceBadExt = mockResponse();
+    const mockEvidenceBadExt = {
+      name: 'Malicious Script',
+      type: 'FILE',
+      fileData: {
+        base64: 'SGVsbG8gV29ybGQ=',
+        filename: 'script.exe'
+      }
+    };
+    await addEvidence({ params: { testId: testControlTestId }, body: mockEvidenceBadExt }, resAddEvidenceBadExt);
+    assert(resAddEvidenceBadExt.statusCode === 400, 'addEvidence with unsupported file extension script.exe returns status 400');
+    assert(resAddEvidenceBadExt.body.error.includes('Unsupported file extension'), 'unsupported file extension error message matched');
+
+    // 8f. Test addEvidence file size boundary limit
+    const resAddEvidenceTooLarge = mockResponse();
+    const mockEvidenceTooLarge = {
+      name: 'Gigantic Backup',
+      type: 'FILE',
+      fileData: {
+        base64: Buffer.alloc(11 * 1024 * 1024).toString('base64'),
+        filename: 'huge-backup.txt'
+      }
+    };
+    await addEvidence({ params: { testId: testControlTestId }, body: mockEvidenceTooLarge }, resAddEvidenceTooLarge);
+    assert(resAddEvidenceTooLarge.statusCode === 400, 'addEvidence with file exceeding 10MB limit returns status 400');
+    assert(resAddEvidenceTooLarge.body.error.includes('exceeds maximum permitted limit'), 'file size limit error message matched');
 
     // Simulate file tampering by modifying the file contents on disk
     const storedEvidence = resAddEvidence.body;

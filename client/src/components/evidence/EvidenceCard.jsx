@@ -45,15 +45,34 @@ export default function EvidenceCard({
         </button>
 
         {evidence.urlOrPath && (
-          <a 
-            href={`http://localhost:5001${evidence.urlOrPath}`} 
-            target="_blank" 
-            rel="noreferrer" 
+          <button 
+            onClick={async () => {
+              try {
+                const token = localStorage.getItem('opene8_token');
+                const res = await fetch(`/api/evidence/${evidence.id}/download`, {
+                  headers: {
+                    'Authorization': `Bearer ${token}`
+                  }
+                });
+                if (!res.ok) throw new Error('Download failed');
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = evidence.urlOrPath.split('/').pop() || 'evidence-file';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                alert('Error downloading evidence: ' + err.message);
+              }
+            }}
             className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded"
             title="Download/View file"
           >
             <ExternalLink size={14}/>
-          </a>
+          </button>
         )}
 
         {!isCompleted && onDelete && (
