@@ -48,17 +48,17 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
     
     // Check ML1
     const ml1Reqs = strategy.requirements.filter(r => r.level === 'ML1');
-    const ml1TechPassed = ml1Reqs.every(r => resultsMap[r.id] === 'PASSED' || resultsMap[r.id] === 'NOT_APPLICABLE');
+    const ml1TechPassed = ml1Reqs.every(r => resultsMap[r.id] === 'EFFECTIVE' || resultsMap[r.id] === 'NOT_APPLICABLE');
     if (ml1TechPassed && ml1Reqs.length > 0) {
       techLevel = 'ML1';
       // Check ML2
       const ml2Reqs = strategy.requirements.filter(r => r.level === 'ML2');
-      const ml2TechPassed = ml2Reqs.every(r => resultsMap[r.id] === 'PASSED' || resultsMap[r.id] === 'NOT_APPLICABLE');
+      const ml2TechPassed = ml2Reqs.every(r => resultsMap[r.id] === 'EFFECTIVE' || resultsMap[r.id] === 'NOT_APPLICABLE');
       if (ml2TechPassed && ml2Reqs.length > 0) {
         techLevel = 'ML2';
         // Check ML3
         const ml3Reqs = strategy.requirements.filter(r => r.level === 'ML3');
-        const ml3TechPassed = ml3Reqs.every(r => resultsMap[r.id] === 'PASSED' || resultsMap[r.id] === 'NOT_APPLICABLE');
+        const ml3TechPassed = ml3Reqs.every(r => resultsMap[r.id] === 'EFFECTIVE' || resultsMap[r.id] === 'NOT_APPLICABLE');
         if (ml3TechPassed && ml3Reqs.length > 0) {
           techLevel = 'ML3';
         }
@@ -69,9 +69,9 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
     // 2. Calculate Assessed scores (Includes exemptions and met_via_compensating_control)
     let assessedLevel = 'ML0';
     const ml1AssessedPassed = ml1Reqs.every(r => 
-      resultsMap[r.id] === 'PASSED' || 
+      resultsMap[r.id] === 'EFFECTIVE' || 
       resultsMap[r.id] === 'NOT_APPLICABLE' || 
-      resultsMap[r.id] === 'MET_VIA_COMPENSATING_CONTROL' || 
+      resultsMap[r.id] === 'ALTERNATE_CONTROL' || 
       activeExceptions.has(r.id)
     );
     if (ml1AssessedPassed && ml1Reqs.length > 0) {
@@ -79,9 +79,9 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
       // Check ML2
       const ml2Reqs = strategy.requirements.filter(r => r.level === 'ML2');
       const ml2AssessedPassed = ml2Reqs.every(r => 
-        resultsMap[r.id] === 'PASSED' || 
+        resultsMap[r.id] === 'EFFECTIVE' || 
         resultsMap[r.id] === 'NOT_APPLICABLE' || 
-        resultsMap[r.id] === 'MET_VIA_COMPENSATING_CONTROL' || 
+        resultsMap[r.id] === 'ALTERNATE_CONTROL' || 
         activeExceptions.has(r.id)
       );
       if (ml2AssessedPassed && ml2Reqs.length > 0) {
@@ -89,9 +89,9 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
         // Check ML3
         const ml3Reqs = strategy.requirements.filter(r => r.level === 'ML3');
         const ml3AssessedPassed = ml3Reqs.every(r => 
-          resultsMap[r.id] === 'PASSED' || 
+          resultsMap[r.id] === 'EFFECTIVE' || 
           resultsMap[r.id] === 'NOT_APPLICABLE' || 
-          resultsMap[r.id] === 'MET_VIA_COMPENSATING_CONTROL' || 
+          resultsMap[r.id] === 'ALTERNATE_CONTROL' || 
           activeExceptions.has(r.id)
         );
         if (ml3AssessedPassed && ml3Reqs.length > 0) {

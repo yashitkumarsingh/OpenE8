@@ -4,9 +4,9 @@ import { describe, it, expect } from 'vitest';
 import StatusBadge from './StatusBadge';
 
 describe('StatusBadge Component', () => {
-  it('renders PASS badge when status is PASSED', () => {
-    render(<StatusBadge status="PASSED" />);
-    const badge = screen.getByText('PASS');
+  it('renders EFFECTIVE badge when status is EFFECTIVE', () => {
+    render(<StatusBadge status="EFFECTIVE" />);
+    const badge = screen.getByText('EFFECTIVE');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveClass('text-emerald-400');
   });
@@ -25,24 +25,34 @@ describe('StatusBadge Component', () => {
     expect(badge).toHaveClass('text-orange-400');
   });
 
-  it('renders PARTIAL badge when status is PARTIAL', () => {
-    render(<StatusBadge status="PARTIAL" />);
-    expect(screen.getByText('PARTIAL')).toBeInTheDocument();
+  it('renders NOT IMPLEMENTED badge when status is NOT_IMPLEMENTED', () => {
+    render(<StatusBadge status="NOT_IMPLEMENTED" />);
+    expect(screen.getByText('NOT IMPLEMENTED')).toBeInTheDocument();
   });
 
-  it('renders FAIL badge when status is FAILED', () => {
-    render(<StatusBadge status="FAILED" />);
-    expect(screen.getByText('FAIL')).toBeInTheDocument();
+  it('renders INEFFECTIVE badge when status is INEFFECTIVE', () => {
+    render(<StatusBadge status="INEFFECTIVE" />);
+    expect(screen.getByText('INEFFECTIVE')).toBeInTheDocument();
   });
 
-  it('renders COMPENSATED badge when status is MET_VIA_COMPENSATING_CONTROL', () => {
-    render(<StatusBadge status="MET_VIA_COMPENSATING_CONTROL" />);
-    expect(screen.getByText('COMPENSATED')).toBeInTheDocument();
+  it('renders ALTERNATE CONTROL badge when status is ALTERNATE_CONTROL', () => {
+    render(<StatusBadge status="ALTERNATE_CONTROL" />);
+    expect(screen.getByText('ALTERNATE CONTROL')).toBeInTheDocument();
   });
 
-  it('renders NEEDS REVIEW badge when status is NEEDS_REVIEW', () => {
-    render(<StatusBadge status="NEEDS_REVIEW" />);
-    expect(screen.getByText('NEEDS REVIEW')).toBeInTheDocument();
+  it('renders NO VISIBILITY badge when status is NO_VISIBILITY', () => {
+    render(<StatusBadge status="NO_VISIBILITY" />);
+    expect(screen.getByText('NO VISIBILITY')).toBeInTheDocument();
+  });
+
+  it('renders NOT APPLICABLE badge when status is NOT_APPLICABLE', () => {
+    render(<StatusBadge status="NOT_APPLICABLE" />);
+    expect(screen.getByText('NOT APPLICABLE')).toBeInTheDocument();
+  });
+
+  it('renders NOT ASSESSED badge when status is NOT_ASSESSED', () => {
+    render(<StatusBadge status="NOT_ASSESSED" />);
+    expect(screen.getByText('NOT ASSESSED')).toBeInTheDocument();
   });
 
   it('renders fallback N/A badge when status is unknown', () => {

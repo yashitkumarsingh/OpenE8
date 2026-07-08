@@ -37,13 +37,15 @@ export default function Stage4Review({
       {reviewView === 'table' && activeAssessment && (() => {
         const allTests = activeAssessment.testResults || [];
         const statusColor = (st) => {
-          if (st === 'PASSED') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-          if (st === 'PARTIAL') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-          if (st === 'FAILED') return 'text-rose-400 bg-rose-500/10 border-rose-500/30';
+          if (st === 'EFFECTIVE') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+          if (st === 'NOT_IMPLEMENTED') return 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+          if (st === 'INEFFECTIVE') return 'text-rose-400 bg-rose-500/10 border-rose-500/30';
           if (st === 'PASS_CANDIDATE') return 'text-lime-400 bg-lime-500/10 border-lime-500/30';
           if (st === 'FAIL_CANDIDATE') return 'text-orange-400 bg-orange-500/10 border-orange-500/30';
-          if (st === 'MET_VIA_COMPENSATING_CONTROL') return 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30';
-          if (st === 'NEEDS_REVIEW') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
+          if (st === 'ALTERNATE_CONTROL') return 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30';
+          if (st === 'NO_VISIBILITY') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
+          if (st === 'NOT_APPLICABLE') return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
+          if (st === 'NOT_ASSESSED') return 'text-slate-500 bg-slate-800/50 border-slate-700';
           return 'text-slate-500 bg-slate-800/50 border-slate-700';
         };
         return (
@@ -120,7 +122,7 @@ export default function Stage4Review({
               </div>
             )}
             <div className="flex flex-wrap gap-2">
-              {['PASSED', 'PARTIAL', 'FAILED', 'NOT_APPLICABLE', 'MET_VIA_COMPENSATING_CONTROL'].map(st => (
+              {['EFFECTIVE', 'ALTERNATE_CONTROL', 'INEFFECTIVE', 'NO_VISIBILITY', 'NOT_IMPLEMENTED', 'NOT_APPLICABLE', 'NOT_ASSESSED'].map(st => (
                 <button
                   key={st}
                   type="button"
@@ -130,11 +132,13 @@ export default function Stage4Review({
                     isCompleted ? 'cursor-not-allowed opacity-65 ' : ''
                   }${
                     currentTest.status === st 
-                      ? st === 'PASSED' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/50' :
-                        st === 'PARTIAL' ? 'bg-amber-500/15 text-amber-400 border-amber-500/50' :
-                        st === 'FAILED' ? 'bg-rose-500/15 text-rose-400 border-rose-500/50' :
-                        st === 'MET_VIA_COMPENSATING_CONTROL' ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/50' :
-                        'bg-slate-800 text-slate-200 border-slate-700'
+                      ? st === 'EFFECTIVE' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/50' :
+                        st === 'ALTERNATE_CONTROL' ? 'bg-indigo-500/15 text-indigo-400 border-indigo-500/50' :
+                        st === 'INEFFECTIVE' ? 'bg-rose-500/15 text-rose-400 border-rose-500/50' :
+                        st === 'NOT_IMPLEMENTED' ? 'bg-amber-500/15 text-amber-400 border-amber-500/50' :
+                        st === 'NO_VISIBILITY' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/50' :
+                        st === 'NOT_APPLICABLE' ? 'bg-blue-500/15 text-blue-400 border-blue-500/50' :
+                        'bg-slate-850 text-slate-400 border-slate-750'
                       : 'bg-slate-900/60 border-slate-850 hover:bg-slate-900 text-slate-500'
                   }`}
                 >

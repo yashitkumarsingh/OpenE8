@@ -20,13 +20,15 @@ export default function EvidenceGraph({
 
   // Determine colors based on status
   const getStatusColor = (status) => {
-    if (status === 'PASSED') return '#10b981'; // emerald
-    if (status === 'PARTIAL') return '#f59e0b'; // amber
-    if (status === 'FAILED') return '#f43f5e'; // rose
+    if (status === 'EFFECTIVE') return '#10b981'; // emerald
+    if (status === 'NOT_IMPLEMENTED') return '#f59e0b'; // amber
+    if (status === 'INEFFECTIVE') return '#f43f5e'; // rose
     if (status === 'PASS_CANDIDATE') return '#84cc16'; // lime
     if (status === 'FAIL_CANDIDATE') return '#f97316'; // orange
-    if (status === 'MET_VIA_COMPENSATING_CONTROL') return '#6366f1'; // indigo
-    if (status === 'NEEDS_REVIEW') return '#eab308'; // yellow
+    if (status === 'ALTERNATE_CONTROL') return '#6366f1'; // indigo
+    if (status === 'NO_VISIBILITY') return '#eab308'; // yellow
+    if (status === 'NOT_APPLICABLE') return '#3b82f6'; // blue
+    if (status === 'NOT_ASSESSED') return '#475569'; // slate
     return '#475569'; // slate
   };
   

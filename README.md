@@ -36,7 +36,7 @@ System
 1. **Scope Builder**: Define systems, owners (business/technical), environments, data sensitivity (Official/Protected), out-of-scope assets, and risk justifications.
 2. **Essential Eight Catalog**: A structured control catalog mapping requirements (ML1, ML2, ML3), expected evidence categories, test types, and ISM mapping IDs (October 2024 catalog — SHA-256 pinned on seeding).
 3. **Evidence Vault**: Upload file evidence, API exports, manual attestations, and script logs with confidence scores, expiry tracking, review lifecycle states, and ownership.
-4. **Technical Importers**: Parse Entra ID CA Policy JSON and Nessus scan CSV exports into structured **candidate findings** — reviewable by assessors before marking controls as passed or failed.
+4. **Technical Importers**: Parse Entra ID CA Policy JSON and Nessus scan CSV exports into structured **candidate findings** — reviewable by assessors before marking controls as effective or ineffective.
 5. **Maturity Engine**: Calculates Technical Maturity (raw engineering result) and Assessed Maturity (reviewer-accepted result including approved compensating controls) using ASD's lowest-common-denominator model.
 6. **Exceptions & Compensating Controls**: Track risk statements, alternate controls, compensating control efficacy, residual risk, approvals, rejection history, affected user counts, and review ownership.
 7. **Remediation Board**: Interactive Kanban layout tracking tasks mapped to failed control items.

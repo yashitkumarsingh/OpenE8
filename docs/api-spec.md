@@ -141,7 +141,7 @@ Returns full detail of a system, including calculation engines feedback.
       "action": "UPDATE",
       "entityType": "ControlTest",
       "entityId": "ct-123",
-      "comment": "Status updated to MET_VIA_COMPENSATING_CONTROL",
+      "comment": "Status updated to ALTERNATE_CONTROL",
       "createdAt": "2026-07-05T12:05:00Z"
     }
   ]

@@ -26,7 +26,7 @@ function runTests() {
     testResults: catalog.flatMap(strategy => 
       strategy.requirements.map(req => ({
         requirementId: req.id,
-        status: 'PASSED'
+        status: 'EFFECTIVE'
       }))
     )
   };
@@ -39,7 +39,7 @@ function runTests() {
     testResults: catalog.flatMap(strategy => 
       strategy.requirements.map(req => ({
         requirementId: req.id,
-        status: req.id === 'E8-AC-ML1-01' ? 'FAILED' : 'PASSED'
+        status: req.id === 'E8-AC-ML1-01' ? 'INEFFECTIVE' : 'EFFECTIVE'
       }))
     )
   };

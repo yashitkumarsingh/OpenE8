@@ -132,12 +132,14 @@ export default function AssessmentWorkspace({
                         <div className="shrink-0">
                           {test ? (
                             <span className={`h-2.5 w-2.5 rounded-full block ${
-                              test.status === 'PASSED' ? 'bg-emerald-500' :
-                              test.status === 'PARTIAL' ? 'bg-amber-500' :
-                              test.status === 'FAILED' ? 'bg-rose-500' : 
+                              test.status === 'EFFECTIVE' ? 'bg-emerald-500' :
+                              test.status === 'NOT_IMPLEMENTED' ? 'bg-amber-500' :
+                              test.status === 'INEFFECTIVE' ? 'bg-rose-500' : 
                               test.status === 'PASS_CANDIDATE' ? 'bg-lime-500 animate-pulse' :
                               test.status === 'FAIL_CANDIDATE' ? 'bg-orange-500 animate-pulse' :
-                              test.status === 'MET_VIA_COMPENSATING_CONTROL' ? 'bg-indigo-500' :
+                              test.status === 'ALTERNATE_CONTROL' ? 'bg-indigo-500' :
+                              test.status === 'NO_VISIBILITY' ? 'bg-yellow-500' :
+                              test.status === 'NOT_APPLICABLE' ? 'bg-blue-500' :
                               'bg-slate-600'
                             }`} />
                           ) : null}

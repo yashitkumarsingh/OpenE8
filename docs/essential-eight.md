@@ -34,7 +34,7 @@ A major operational bottleneck for security teams is legacy systems or service a
 
 OpenE8 resolves this bottleneck by implementing **Approved Exception Override Gates**:
 
-1. **Approved Exception**: If a control test fails (e.g. `E8-AC-ML1-01` is FAILED) but there is an active, approved exception in the database, the engine treats it as a mitigating control.
+1. **Approved Exception**: If a control test fails (e.g. `E8-AC-ML1-01` is INEFFECTIVE) but there is an active, approved exception in the database, the engine treats it as a mitigating control.
 2. **Expiry Verification**: The engine verifies the expiration date on every exception during execution:
    - If `status === 'APPROVED'` and `new Date(expiryDate) > new Date()`, the override gate is **Active**. The failure is bypassed, and the assessed strategy score is not downgraded.
    - If the current date exceeds `expiryDate`, the exception is marked **Expired**. The override gate is deactivated, and the assessed strategy score immediately downgrades.
@@ -48,11 +48,13 @@ OpenE8 resolves this bottleneck by implementing **Approved Exception Override Ga
 
 OpenE8 enforces structured, auditable statuses for requirement evaluations to ensure assessment credibility:
 
-* **PASSED**: The technical control is fully verified.
-* **FAILED**: The technical control failed verification checks.
-* **PARTIAL**: The control is partially implemented across the scoped footprint.
-* **NOT APPLICABLE**: The requirement is out of scope with documented justification.
-* **MET VIA COMPENSATING CONTROL**: The technical check failed, but assessor-approved compensating controls have been verified to provide equivalent protection.
+* **EFFECTIVE**: The control is fully verified and operating effectively.
+* **INEFFECTIVE**: The control failed verification checks.
+* **NOT_IMPLEMENTED**: The control is not implemented or partially configured.
+* **ALTERNATE_CONTROL**: Alternate compensating controls have been verified to provide equivalent protection.
+* **NO_VISIBILITY**: Insufficient evidence was gathered to verify the control.
+* **NOT_APPLICABLE**: The requirement is out of scope with documented justification.
+* **NOT_ASSESSED**: The requirement has not been assessed yet.
 
 ---
 

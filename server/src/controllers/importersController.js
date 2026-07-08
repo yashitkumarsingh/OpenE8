@@ -147,7 +147,7 @@ async function parseEntraMfa(jsonText, assessment, fileUrl) {
         where: { id: testAdmin.id },
         data: {
           status: 'PASS_CANDIDATE',
-          notes: `CANDIDATE FINDING: Automated policy scan detected MFA Conditional Access rule(s) that may satisfy this control. Enforcing policies found: ${matchingPolicies.join(', ')}. Reviewer confirmation required before marking as PASSED — verify exclusions, report-only mode, break-glass accounts, and legacy auth bypass are not present.`,
+          notes: `CANDIDATE FINDING: Automated policy scan detected MFA Conditional Access rule(s) that may satisfy this control. Enforcing policies found: ${matchingPolicies.join(', ')}. Reviewer confirmation required before marking as EFFECTIVE — verify exclusions, report-only mode, break-glass accounts, and legacy auth bypass are not present.`,
           reviewedBy: null,
           reviewedAt: new Date()
         }
@@ -176,7 +176,7 @@ async function parseEntraMfa(jsonText, assessment, fileUrl) {
         where: { id: testAll.id },
         data: {
           status: 'PASS_CANDIDATE',
-          notes: `CANDIDATE FINDING: Automated policy scan detected MFA Conditional Access rule(s) that may satisfy this control for all users. Enforcing policies found: ${matchingPolicies.join(', ')}. Reviewer confirmation required before marking as PASSED — verify exclusions, report-only mode, break-glass accounts, and legacy auth bypass are not present.`,
+          notes: `CANDIDATE FINDING: Automated policy scan detected MFA Conditional Access rule(s) that may satisfy this control for all users. Enforcing policies found: ${matchingPolicies.join(', ')}. Reviewer confirmation required before marking as EFFECTIVE — verify exclusions, report-only mode, break-glass accounts, and legacy auth bypass are not present.`,
           reviewedBy: null,
           reviewedAt: new Date()
         }
@@ -238,7 +238,7 @@ async function parseNessusCsv(csvText, assessment, fileUrl) {
 
   if (criticalIssues.length > 0) {
     const patchReqs = ['E8-PA-ML1-01', 'E8-PO-ML1-01'];
-    const summaryNotes = `CANDIDATE FINDING: Automated scan detected ${criticalIssues.length} active high/critical vulnerabilities suggesting patch compliance failure. Discovered CVEs include: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as FAILED — verify host scope, exploitability, and whether patches are pending deployment.`;
+    const summaryNotes = `CANDIDATE FINDING: Automated scan detected ${criticalIssues.length} active high/critical vulnerabilities suggesting patch compliance failure. Discovered CVEs include: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as INEFFECTIVE — verify host scope, exploitability, and whether patches are pending deployment.`;
 
     for (const reqId of patchReqs) {
       const targetTest = testResults.find(t => t.requirementId === reqId);
@@ -297,7 +297,7 @@ async function parseNessusCsv(csvText, assessment, fileUrl) {
           where: { id: targetTest.id },
           data: {
             status: 'PASS_CANDIDATE',
-            notes: 'CANDIDATE FINDING: Scan report detected 0 high/critical patch vulnerabilities in the provided output. Reviewer confirmation required before marking as PASSED — verify scan scope covers all in-scope hosts and the scan was recent.',
+            notes: 'CANDIDATE FINDING: Scan report detected 0 high/critical patch vulnerabilities in the provided output. Reviewer confirmation required before marking as EFFECTIVE — verify scan scope covers all in-scope hosts and the scan was recent.',
             reviewedBy: null,
             reviewedAt: new Date()
           }
@@ -349,7 +349,7 @@ async function parseDefenderVulnerabilities(jsonText, assessment, fileUrl) {
 
   if (criticalIssues.length > 0) {
     const patchReqs = ['E8-PA-ML1-01', 'E8-PO-ML1-01'];
-    const summaryNotes = `CANDIDATE FINDING: Defender for Endpoint scan detected ${criticalIssues.length} high/critical vulnerabilities suggesting patch compliance failure. Vulnerabilities found: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as FAILED.`;
+    const summaryNotes = `CANDIDATE FINDING: Defender for Endpoint scan detected ${criticalIssues.length} high/critical vulnerabilities suggesting patch compliance failure. Vulnerabilities found: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as INEFFECTIVE.`;
 
     for (const reqId of patchReqs) {
       const targetTest = testResults.find(t => t.requirementId === reqId);
@@ -477,7 +477,7 @@ async function parseAwsConfigCompliance(jsonText, assessment, fileUrl) {
             where: { id: targetTest.id },
             data: {
               status: 'FAIL_CANDIDATE',
-              notes: `CANDIDATE FINDING: AWS Config rules compliance check failed. Non-compliant AWS Config rule(s) detected: ${matchedNonCompliant.join(', ')}. Reviewer confirmation required before marking as FAILED.`,
+              notes: `CANDIDATE FINDING: AWS Config rules compliance check failed. Non-compliant AWS Config rule(s) detected: ${matchedNonCompliant.join(', ')}. Reviewer confirmation required before marking as INEFFECTIVE.`,
               reviewedBy: null,
               reviewedAt: new Date()
             }
@@ -603,7 +603,7 @@ async function parseCustomCsv(csvText, assessment, fileUrl, mapping) {
 
   if (criticalIssues.length > 0) {
     const patchReqs = ['E8-PA-ML1-01', 'E8-PO-ML1-01'];
-    const summaryNotes = `CANDIDATE FINDING: Custom CSV scan detected ${criticalIssues.length} high/critical vulnerabilities suggesting patch compliance failure. CVEs: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as FAILED.`;
+    const summaryNotes = `CANDIDATE FINDING: Custom CSV scan detected ${criticalIssues.length} high/critical vulnerabilities suggesting patch compliance failure. CVEs: ${criticalIssues.slice(0, 5).map(c => c.cve).join(', ')}. Reviewer confirmation required before marking as INEFFECTIVE.`;
 
     for (const reqId of patchReqs) {
       const targetTest = testResults.find(t => t.requirementId === reqId);

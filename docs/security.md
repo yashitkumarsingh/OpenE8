@@ -90,8 +90,8 @@ Automated importers (Entra ID CA Policy, Nessus CSV) produce **candidate finding
 |---|---|
 | `PASS_CANDIDATE` | Automated scan suggests compliance — assessor confirmation required |
 | `FAIL_CANDIDATE` | Automated scan suggests non-compliance — assessor confirmation required |
-| `PASSED` | Assessor-confirmed compliance decision |
-| `FAILED` | Assessor-confirmed non-compliance decision |
+| `EFFECTIVE` | Assessor-confirmed compliance decision |
+| `INEFFECTIVE` | Assessor-confirmed non-compliance decision |
 
 Importers set `reviewedBy: null` to indicate no human has reviewed the result.
 

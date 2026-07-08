@@ -114,15 +114,15 @@ Validation: Verification scripts check block integrity daily.`;
       let notes = 'Meets requirement baseline.';
 
       if (req.level === 'ML1') {
-        status = 'PASSED';
+        status = 'EFFECTIVE';
         notes = 'Verified fully operational and automated.';
       } else if (req.level === 'ML2') {
         if (strategy.slug === 'restrict-admin-privileges') {
           // Technical failure, but met via compensating control
-          status = 'MET_VIA_COMPENSATING_CONTROL';
+          status = 'ALTERNATE_CONTROL';
           notes = 'Technical check failed (manual list audit is overdue), but Sentinel daily audit alerts are active.';
         } else {
-          status = 'PASSED';
+          status = 'EFFECTIVE';
           notes = 'Configuration checks successfully parsed.';
         }
       }
@@ -138,7 +138,7 @@ Validation: Verification scripts check block integrity daily.`;
         },
       });
 
-      if (status === 'PASSED') {
+      if (status === 'EFFECTIVE') {
         await prisma.evidence.create({
           data: {
             controlTestId: ct.id,
@@ -242,15 +242,15 @@ Validation: Verification scripts check block integrity daily.`;
   // Seed Control Tests for HR Core Portal
   for (const strategy of catalog) {
     for (const req of strategy.requirements) {
-      let status = 'FAILED';
+      let status = 'INEFFECTIVE';
       let notes = 'Unconfigured. Evidence verification failed.';
 
       // Make Daily Backups Pass
       if (strategy.slug === 'daily-backups') {
-        status = 'PASSED';
+        status = 'EFFECTIVE';
         notes = 'Nightly full backups verify restoration schedules.';
       } else if (strategy.slug === 'restrict-admin-privileges' && req.level === 'ML1') {
-        status = 'PASSED';
+        status = 'EFFECTIVE';
         notes = 'Local admin rights restricted on member server hosts.';
       }
 
@@ -265,7 +265,7 @@ Validation: Verification scripts check block integrity daily.`;
         },
       });
 
-      if (status === 'PASSED') {
+      if (status === 'EFFECTIVE') {
         await prisma.evidence.create({
           data: {
             controlTestId: ct.id,

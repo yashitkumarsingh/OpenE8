@@ -104,11 +104,11 @@ async function runControllerTests() {
     // 7. Test updateControlTest
     const resUpdateControlTest = mockResponse();
     await updateControlTest(
-      { params: { id: testControlTestId }, body: { status: 'PASSED', notes: 'Verification test notes', reviewedBy: 'Tester' } },
+      { params: { id: testControlTestId }, body: { status: 'EFFECTIVE', notes: 'Verification test notes', reviewedBy: 'Tester' } },
       resUpdateControlTest
     );
     assert(resUpdateControlTest.statusCode === 200, 'updateControlTest should return status 200');
-    assert(resUpdateControlTest.body.status === 'PASSED', 'Control status should be updated to PASSED');
+    assert(resUpdateControlTest.body.status === 'EFFECTIVE', 'Control status should be updated to EFFECTIVE');
 
     // 8. Test addEvidence
     const resAddEvidence = mockResponse();
@@ -491,7 +491,7 @@ async function runControllerTests() {
     // Trying to update control test on COMPLETED assessment should fail (lockout check)
     const resLockUpdateTest = mockResponse();
     await updateControlTest(
-      { params: { id: testControlTestId }, body: { status: 'FAILED', notes: 'Altering completed details', reviewedBy: 'Hacker' } },
+      { params: { id: testControlTestId }, body: { status: 'INEFFECTIVE', notes: 'Altering completed details', reviewedBy: 'Hacker' } },
       resLockUpdateTest
     );
     assert(resLockUpdateTest.statusCode === 400, 'updateControlTest on signed-off assessment should return 400 Bad Request');

@@ -96,7 +96,7 @@ Database schemas are defined in [schema.prisma](file:///Users/yashitkumarsingh/d
 
 - **System**: Represents the scoping boundary (Owner, sensitivity, platform, out-of-scope reasons).
 - **Assessment**: Tracks a point-in-time compliance checkpoint.
-- **ControlTest**: Evaluates a specific requirement status (`PASSED`, `PARTIAL`, `FAILED`, `NOT_APPLICABLE`).
+- **ControlTest**: Evaluates a specific requirement status (e.g. `EFFECTIVE`, `ALTERNATE_CONTROL`, `INEFFECTIVE`, `NOT_APPLICABLE`).
 - **Evidence**: Links technical config files to specific tests.
 - **Exception**: Manages formal CISO risk approval logs, compensating controls, and expiration dates.
 - **RemediationTask**: Schedules backlog tickets linked to failed controls to track patching SLAs.
