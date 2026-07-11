@@ -24,7 +24,7 @@ export default function EvidenceModal({
           />
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <div>
             <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Type</label>
             <select 
@@ -34,8 +34,8 @@ export default function EvidenceModal({
             >
               <option value="FILE">File / Document</option>
               <option value="API_EXPORT">API Export JSON/CSV</option>
-              <option value="SCRIPT_OUTPUT">Script Console Output</option>
-              <option value="ATTESTATION">Manual Attestation</option>
+              <option value="SCRIPT_OUTPUT">Script Output</option>
+              <option value="ATTESTATION">Attestation</option>
             </select>
           </div>
           <div>
@@ -45,9 +45,22 @@ export default function EvidenceModal({
               onChange={(e) => setEvidenceForm({ ...evidenceForm, confidenceLevel: e.target.value })}
               className="w-full bg-slate-950 border border-slate-800 rounded-md py-2 px-3 text-xs text-slate-200 focus:outline-none"
             >
-              <option value="HIGH">High Confidence</option>
-              <option value="MEDIUM">Medium Confidence</option>
-              <option value="LOW">Low Confidence</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Quality</label>
+            <select 
+              value={evidenceForm.qualityScore} 
+              onChange={(e) => setEvidenceForm({ ...evidenceForm, qualityScore: e.target.value })}
+              className="w-full bg-slate-950 border border-slate-800 rounded-md py-2 px-3 text-xs text-slate-200 focus:outline-none"
+            >
+              <option value="EXCELLENT">Excellent</option>
+              <option value="GOOD">Good</option>
+              <option value="FAIR">Fair</option>
+              <option value="POOR">Poor</option>
             </select>
           </div>
         </div>

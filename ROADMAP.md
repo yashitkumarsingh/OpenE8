@@ -64,7 +64,7 @@ Enhances the fidelity of the control catalogue and aligns terminology with offic
 - [ ] **Detailed Timeframe Scopes**: Incorporate explicit daily/weekly/fortnightly scanning controls and 48-hour/two-week/one-month patching windows inside the controls catalogue schema.
 
 ### B. Standardised Assessment Outcomes
-- [ ] **ASD-Aligned Status Options**: Update scoring models and control tests status options to match ASD's official assessment process guide:
+- [x] **ASD-Aligned Status Options**: Update scoring models and control tests status options to match ASD's official assessment process guide:
   - `NOT_ASSESSED`
   - `EFFECTIVE`
   - `ALTERNATE_CONTROL`
@@ -74,8 +74,8 @@ Enhances the fidelity of the control catalogue and aligns terminology with offic
   - `NOT_APPLICABLE`
 
 ### C. Stricter Exception Scoring
-- [ ] **Compensating Control Validation**: Tighten `maturityEngine.js` exception gates. Require an active exception to have a documented `compensatingControlEfficacy` of `HIGH`, active risk owner approval, and a valid unexpired date before adjusting assessed maturity metrics.
-- [ ] **Evidence Quality Scales**: Map evidence files to quality scores (`EXCELLENT`, `GOOD`, `FAIR`, `POOR`) as recommended by the ASD Guide.
+- [x] **Compensating Control Validation**: Tighten `maturityEngine.js` exception gates. Require an active exception to have a documented `compensatingControlEfficacy` of `HIGH`, active risk owner approval, and a valid unexpired date before adjusting assessed maturity metrics.
+- [x] **Evidence Quality Scales**: Map evidence files to quality scores (`EXCELLENT`, `GOOD`, `FAIR`, `POOR`) as recommended by the ASD Guide.
 
 ---
 

@@ -43,7 +43,7 @@ export async function updateControlTest(req, res) {
 
 export async function addEvidence(req, res) {
   try {
-    const { name, type, owner, sourceSystem, confidenceLevel, notes, fileData } = req.body;
+    const { name, type, owner, sourceSystem, confidenceLevel, qualityScore, notes, fileData } = req.body;
     
     const controlTest = await prisma.controlTest.findUnique({
       where: { id: req.params.testId },
@@ -95,6 +95,7 @@ export async function addEvidence(req, res) {
         owner,
         sourceSystem,
         confidenceLevel,
+        qualityScore: qualityScore || 'FAIR',
         notes
       }
     });

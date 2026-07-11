@@ -51,7 +51,7 @@ export default function App() {
 
   // Form states
   const [evidenceForm, setEvidenceForm] = useState({
-    name: '', type: 'FILE', owner: '', sourceSystem: '', confidenceLevel: 'HIGH', notes: '', filename: '', base64: ''
+    name: '', type: 'FILE', owner: '', sourceSystem: '', confidenceLevel: 'HIGH', qualityScore: 'FAIR', notes: '', filename: '', base64: ''
   });
   const [exceptionForm, setExceptionForm] = useState({
     requirementId: '', riskStatement: '', compensatingControl: '', residualRisk: 'MEDIUM', approvedBy: '', reviewDate: '', expiryDate: ''
@@ -405,6 +405,7 @@ export default function App() {
         owner: evidenceForm.owner || user?.name || 'System Owner',
         sourceSystem: evidenceForm.sourceSystem,
         confidenceLevel: evidenceForm.confidenceLevel,
+        qualityScore: evidenceForm.qualityScore,
         notes: evidenceForm.notes
       };
 
@@ -422,7 +423,7 @@ export default function App() {
 
       setShowEvidenceModal(false);
       setEvidenceForm({
-        name: '', type: 'FILE', owner: '', sourceSystem: '', confidenceLevel: 'HIGH', notes: '', filename: '', base64: ''
+        name: '', type: 'FILE', owner: '', sourceSystem: '', confidenceLevel: 'HIGH', qualityScore: 'FAIR', notes: '', filename: '', base64: ''
       });
       selectSystem(selectedSystem.id);
     } catch (err) {
@@ -981,7 +982,7 @@ export default function App() {
                   placeholder="e.g. Entra CA Policy Screenshot"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Type</label>
                   <select 
@@ -991,8 +992,8 @@ export default function App() {
                   >
                     <option value="FILE">File / Document</option>
                     <option value="API_EXPORT">API Export JSON/CSV</option>
-                    <option value="SCRIPT_OUTPUT">Script Console Output</option>
-                    <option value="ATTESTATION">Manual Attestation</option>
+                    <option value="SCRIPT_OUTPUT">Script Output</option>
+                    <option value="ATTESTATION">Attestation</option>
                   </select>
                 </div>
                 <div>
@@ -1002,9 +1003,22 @@ export default function App() {
                     onChange={(e) => setEvidenceForm({ ...evidenceForm, confidenceLevel: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-md py-2 px-3 text-xs text-slate-200 focus:outline-none"
                   >
-                    <option value="HIGH">High Confidence</option>
-                    <option value="MEDIUM">Medium Confidence</option>
-                    <option value="LOW">Low Confidence</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Quality</label>
+                  <select 
+                    value={evidenceForm.qualityScore} 
+                    onChange={(e) => setEvidenceForm({ ...evidenceForm, qualityScore: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-md py-2 px-3 text-xs text-slate-200 focus:outline-none"
+                  >
+                    <option value="EXCELLENT">Excellent</option>
+                    <option value="GOOD">Good</option>
+                    <option value="FAIR">Fair</option>
+                    <option value="POOR">Poor</option>
                   </select>
                 </div>
               </div>

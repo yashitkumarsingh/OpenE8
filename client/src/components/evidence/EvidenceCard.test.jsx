@@ -9,6 +9,7 @@ describe('EvidenceCard Component', () => {
     name: 'Backup logs.csv',
     sourceSystem: 'Veeam Backup',
     confidenceLevel: 'HIGH',
+    qualityScore: 'EXCELLENT',
     notes: 'Weekly backup logs',
     urlOrPath: '/uploads/logs.csv'
   };
@@ -25,6 +26,7 @@ describe('EvidenceCard Component', () => {
     );
 
     expect(screen.getByText('Backup logs.csv')).toBeInTheDocument();
+    expect(screen.getByText('★ EXCELLENT')).toBeInTheDocument();
     expect(screen.getByText('Source: Veeam Backup')).toBeInTheDocument();
     expect(screen.getByText('"Weekly backup logs"')).toBeInTheDocument();
     expect(screen.getByTitle('Download/View file')).toBeInTheDocument();

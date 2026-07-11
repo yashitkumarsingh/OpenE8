@@ -48,7 +48,7 @@ function runTests() {
   assert(result2.overallMaturity === 'ML0', 'Overall maturity should be ML0 due to lowest common denominator');
   assert(result2.blockingStrategies.includes('Application Control'), 'Application Control should block target level');
 
-  // Test Case 3: Failed control WITH an active approved exception -> should NOT downgrade maturity
+  // Test Case 3: Failed control WITH active approved exceptions -> should NOT downgrade maturity
   const exceptions = [
     {
       requirementId: 'E8-AC-ML1-01',
@@ -57,11 +57,27 @@ function runTests() {
       compensatingControlEfficacy: 'HIGH',
       riskAcceptedBy: 'CISO',
       riskAcceptedAt: new Date()
+    },
+    {
+      requirementId: 'E8-AC-ML2-01',
+      status: 'APPROVED',
+      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
+      compensatingControlEfficacy: 'HIGH',
+      riskAcceptedBy: 'CISO',
+      riskAcceptedAt: new Date()
+    },
+    {
+      requirementId: 'E8-AC-ML3-01',
+      status: 'APPROVED',
+      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
+      compensatingControlEfficacy: 'HIGH',
+      riskAcceptedBy: 'CISO',
+      riskAcceptedAt: new Date()
     }
   ];
   const result3 = calculateMaturity(catalog, assessmentOneFailed, exceptions, 'ML2');
-  assert(result3.strategyScores['Application Control'] === 'ML3', 'Application Control should pass to ML3 with exception');
-  assert(result3.overallMaturity === 'ML3', 'Overall maturity should remain ML3 since exception is approved and active');
+  assert(result3.strategyScores['Application Control'] === 'ML3', 'Application Control should pass to ML3 with exceptions across levels');
+  assert(result3.overallMaturity === 'ML3', 'Overall maturity should remain ML3 since exceptions are approved and active');
   assert(result3.technicalMaturity === 'ML0', 'Technical maturity must remain ML0 (ignoring exceptions)');
 
   // Test Case 3b: Failed control WITH an approved exception but MEDIUM efficacy -> should downgrade

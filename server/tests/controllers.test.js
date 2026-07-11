@@ -110,25 +110,27 @@ async function runControllerTests() {
     assert(resUpdateControlTest.statusCode === 200, 'updateControlTest should return status 200');
     assert(resUpdateControlTest.body.status === 'EFFECTIVE', 'Control status should be updated to EFFECTIVE');
 
-    // 8. Test addEvidence
-    const resAddEvidence = mockResponse();
-    const mockEvidenceBody = {
-      name: 'Test Policy PDF',
-      type: 'FILE',
-      owner: 'SecOps',
-      sourceSystem: 'Local Store',
-      confidenceLevel: 'HIGH',
-      notes: 'Test configuration documentation',
-      fileData: {
-        base64: 'SGVsbG8gV29ybGQgLSBPcGVuRTggVGVzdCBGaWxl',
-        filename: 'test-policy.txt'
-      }
-    };
-    await addEvidence({ params: { testId: testControlTestId }, body: mockEvidenceBody }, resAddEvidence);
-    assert(resAddEvidence.statusCode === 201, 'addEvidence should return status 201');
-    assert(resAddEvidence.body.contentHash !== null, 'addEvidence should compute contentHash');
-    assert(resAddEvidence.body.contentHash.length === 64, 'contentHash should be a SHA-256 hex string');
-    testEvidenceId = resAddEvidence.body.id;
+     // 8. Test addEvidence
+     const resAddEvidence = mockResponse();
+     const mockEvidenceBody = {
+       name: 'Test Policy PDF',
+       type: 'FILE',
+       owner: 'SecOps',
+       sourceSystem: 'Local Store',
+       confidenceLevel: 'HIGH',
+       qualityScore: 'EXCELLENT',
+       notes: 'Test configuration documentation',
+       fileData: {
+         base64: 'SGVsbG8gV29ybGQgLSBPcGVuRTggVGVzdCBGaWxl',
+         filename: 'test-policy.txt'
+       }
+     };
+     await addEvidence({ params: { testId: testControlTestId }, body: mockEvidenceBody }, resAddEvidence);
+     assert(resAddEvidence.statusCode === 201, 'addEvidence should return status 201');
+     assert(resAddEvidence.body.qualityScore === 'EXCELLENT', 'addEvidence should save qualityScore');
+     assert(resAddEvidence.body.contentHash !== null, 'addEvidence should compute contentHash');
+     assert(resAddEvidence.body.contentHash.length === 64, 'contentHash should be a SHA-256 hex string');
+     testEvidenceId = resAddEvidence.body.id;
 
     // 8b. Test verifyEvidenceIntegrity
     const resVerifyEvidenceSuccess = mockResponse();
@@ -145,6 +147,99 @@ async function runControllerTests() {
     await downloadEvidence({ params: { id: testEvidenceId } }, resDownloadSuccess);
     assert(resDownloadSuccess.headers['Content-Disposition'].includes('attachment'), 'downloadEvidence should set content disposition attachment header');
     assert(resDownloadSuccess.sendFileCalledWith !== undefined, 'downloadEvidence should invoke sendFile to stream back resources');
+    assert(resDownloadSuccess.headers['Content-Type'] === 'text/plain', 'downloadEvidence should set text/plain Content-Type');
+
+    // 8c-2. Test downloadEvidence with PDF
+    const resAddPdf = mockResponse();
+    await addEvidence(
+      {
+        params: { testId: testControlTestId },
+        body: {
+          name: 'Policy Document',
+          type: 'FILE',
+          owner: 'SecOps',
+          sourceSystem: 'Local Store',
+          confidenceLevel: 'HIGH',
+          qualityScore: 'GOOD',
+          notes: 'PDF notes',
+          fileData: { base64: 'SGVsbG8=', filename: 'test-policy.pdf' }
+        }
+      },
+      resAddPdf
+    );
+    const resDownloadPdf = mockResponse();
+    resDownloadPdf.sendFile = () => resDownloadPdf;
+    await downloadEvidence({ params: { id: resAddPdf.body.id } }, resDownloadPdf);
+    assert(resDownloadPdf.headers['Content-Type'] === 'application/pdf', 'downloadEvidence should set application/pdf for PDF files');
+
+    // 8c-3. Test downloadEvidence with JSON
+    const resAddJson = mockResponse();
+    await addEvidence(
+      {
+        params: { testId: testControlTestId },
+        body: {
+          name: 'Policy Config',
+          type: 'FILE',
+          owner: 'SecOps',
+          sourceSystem: 'Local Store',
+          confidenceLevel: 'HIGH',
+          qualityScore: 'GOOD',
+          notes: 'JSON notes',
+          fileData: { base64: 'e30=', filename: 'test-policy.json' }
+        }
+      },
+      resAddJson
+    );
+    const resDownloadJson = mockResponse();
+    resDownloadJson.sendFile = () => resDownloadJson;
+    await downloadEvidence({ params: { id: resAddJson.body.id } }, resDownloadJson);
+    assert(resDownloadJson.headers['Content-Type'] === 'application/json', 'downloadEvidence should set application/json for JSON files');
+
+    // 8c-4. Test downloadEvidence with PNG
+    const resAddPng = mockResponse();
+    await addEvidence(
+      {
+        params: { testId: testControlTestId },
+        body: {
+          name: 'Policy Screenshot',
+          type: 'FILE',
+          owner: 'SecOps',
+          sourceSystem: 'Local Store',
+          confidenceLevel: 'HIGH',
+          qualityScore: 'GOOD',
+          notes: 'PNG notes',
+          fileData: { base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', filename: 'test-policy.png' }
+        }
+      },
+      resAddPng
+    );
+    const resDownloadPng = mockResponse();
+    resDownloadPng.sendFile = () => resDownloadPng;
+    await downloadEvidence({ params: { id: resAddPng.body.id } }, resDownloadPng);
+    assert(resDownloadPng.headers['Content-Type'] === 'image/png', 'downloadEvidence should set image/png for PNG files');
+
+    // 8c-5. Test downloadEvidence with CSV
+    const resAddCsv = mockResponse();
+    await addEvidence(
+      {
+        params: { testId: testControlTestId },
+        body: {
+          name: 'Policy CSV',
+          type: 'FILE',
+          owner: 'SecOps',
+          sourceSystem: 'Local Store',
+          confidenceLevel: 'HIGH',
+          qualityScore: 'GOOD',
+          notes: 'CSV notes',
+          fileData: { base64: 'Y29sMSxjb2wyCjEsMgo=', filename: 'test-policy.csv' }
+        }
+      },
+      resAddCsv
+    );
+    const resDownloadCsv = mockResponse();
+    resDownloadCsv.sendFile = () => resDownloadCsv;
+    await downloadEvidence({ params: { id: resAddCsv.body.id } }, resDownloadCsv);
+    assert(resDownloadCsv.headers['Content-Type'] === 'text/csv', 'downloadEvidence should set text/csv for CSV files');
 
     // 8d. Test downloadEvidence (Missing ID)
     const resDownloadMissing = mockResponse();

@@ -8,10 +8,46 @@ export default function EvidenceCard({
   onDelete, 
   isCompleted 
 }) {
+  const getQualityBadge = (score) => {
+    const sc = score?.toUpperCase() || 'FAIR';
+    if (sc === 'EXCELLENT') {
+      return (
+        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide bg-gradient-to-r from-emerald-500 to-teal-500 text-white border border-emerald-450/30 shadow-sm shadow-emerald-500/10">
+          ★ EXCELLENT
+        </span>
+      );
+    }
+    if (sc === 'GOOD') {
+      return (
+        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide bg-emerald-500/10 border border-emerald-500/35 text-emerald-400">
+          GOOD
+        </span>
+      );
+    }
+    if (sc === 'FAIR') {
+      return (
+        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide bg-amber-500/10 border border-amber-500/35 text-amber-400">
+          FAIR
+        </span>
+      );
+    }
+    if (sc === 'POOR') {
+      return (
+        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wide bg-rose-500/10 border border-rose-500/35 text-rose-400">
+          POOR
+        </span>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="p-3.5 rounded-lg bg-slate-900/70 border border-slate-800/80 flex justify-between items-start text-xs">
       <div className="space-y-1">
-        <span className="font-bold text-slate-200 block">{evidence.name}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-slate-200 block">{evidence.name}</span>
+          {getQualityBadge(evidence.qualityScore)}
+        </div>
         <div className="flex gap-2 text-[10px] text-slate-500">
           <span>Source: {evidence.sourceSystem}</span>
           <span>•</span>

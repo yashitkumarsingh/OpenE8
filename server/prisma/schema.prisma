@@ -67,6 +67,7 @@ model Evidence {
   expiryDate       DateTime?
   sourceSystem     String
   confidenceLevel  String      // LOW, MEDIUM, HIGH
+  qualityScore     String      @default("FAIR")  // EXCELLENT, GOOD, FAIR, POOR
   reviewer         String?
   notes            String?
   // Evidence review lifecycle
