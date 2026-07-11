@@ -47,7 +47,7 @@ model ControlTest {
   assessmentId  String
   assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   requirementId String     // Reference to the library requirement (e.g., E8-MFA-ML2-001)
-  status        String     // PASSED, PARTIAL, FAILED, NOT_APPLICABLE, MET_VIA_COMPENSATING_CONTROL, PASS_CANDIDATE, FAIL_CANDIDATE, NEEDS_REVIEW
+  status        String     // EFFECTIVE, ALTERNATE_CONTROL, INEFFECTIVE, NO_VISIBILITY, NOT_IMPLEMENTED, NOT_APPLICABLE, NOT_ASSESSED, PASS_CANDIDATE, FAIL_CANDIDATE, NEEDS_REVIEW
   reviewedBy    String?
   reviewedAt    DateTime?
   notes         String?

@@ -61,7 +61,7 @@ Enhances the fidelity of the control catalogue and aligns terminology with offic
 
 ### A. Control Catalogue Fidelity
 - [x] **Starter Catalogue Demarcation**: Clearly label current controls as a "Starter control catalogue inspired by ASD guidance" rather than an authoritative reproduction.
-- [ ] **Detailed Timeframe Scopes**: Incorporate explicit daily/weekly/fortnightly scanning controls and 48-hour/two-week/one-month patching windows inside the controls catalogue schema.
+- [x] **Detailed Timeframe Scopes**: Incorporate explicit daily/weekly/fortnightly scanning controls and 48-hour/two-week/one-month patching windows inside the controls catalogue schema.
 
 ### B. Standardised Assessment Outcomes
 - [x] **ASD-Aligned Status Options**: Update scoring models and control tests status options to match ASD's official assessment process guide:
