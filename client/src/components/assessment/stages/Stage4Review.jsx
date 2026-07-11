@@ -113,6 +113,49 @@ export default function Stage4Review({
             </div>
           </div>
 
+          {(currentReq.patchingWindow || 
+            currentReq.activeExploitPatchingWindow || 
+            currentReq.scanningFrequency || 
+            currentReq.auditingInterval || 
+            currentReq.backupFrequency || 
+            currentReq.restoreTestingInterval) && (
+            <div>
+              <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Timeframe Constraints</label>
+              <div className="flex flex-wrap gap-2">
+                {currentReq.patchingWindow && (
+                  <span className="px-2 py-1 rounded bg-blue-500/10 border border-blue-500/30 text-[10px] font-semibold text-blue-400">
+                    Patching SLA: {currentReq.patchingWindow.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {currentReq.activeExploitPatchingWindow && (
+                  <span className="px-2 py-1 rounded bg-rose-500/10 border border-rose-500/30 text-[10px] font-semibold text-rose-400">
+                    Active Exploit SLA: {currentReq.activeExploitPatchingWindow.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {currentReq.scanningFrequency && (
+                  <span className="px-2 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-[10px] font-semibold text-purple-400">
+                    Scanning: {currentReq.scanningFrequency.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {currentReq.auditingInterval && (
+                  <span className="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-[10px] font-semibold text-amber-400">
+                    Auditing: {currentReq.auditingInterval.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {currentReq.backupFrequency && (
+                  <span className="px-2 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-semibold text-emerald-400">
+                    Backups: {currentReq.backupFrequency.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {currentReq.restoreTestingInterval && (
+                  <span className="px-2 py-1 rounded bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-semibold text-indigo-400">
+                    Restore Testing: {currentReq.restoreTestingInterval.replace(/_/g, ' ')}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Requirement Compliance Status</label>
             {(currentTest.status === 'PASS_CANDIDATE' || currentTest.status === 'FAIL_CANDIDATE') && (

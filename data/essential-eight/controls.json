@@ -26,7 +26,8 @@
         "text": "Application control rulesets are reviewed at least annually to ensure only currently required software is allowed to execute.",
         "expectedEvidence": ["Annual review minutes", "Approved software inventory sign-off", "Ruleset change logs"],
         "testType": ["document_review"],
-        "ismMapping": ["ISM-1509"]
+        "ismMapping": ["ISM-1509"],
+        "auditingInterval": "ANNUALLY"
       },
       {
         "id": "E8-AC-ML3-01",
@@ -34,7 +35,8 @@
         "text": "Application control is implemented on workstations and servers. Microsoft's recommended block rules are enabled and updated monthly.",
         "expectedEvidence": ["WDAC block rules status", "Intune configuration report", "Update deployment log"],
         "testType": ["api", "script"],
-        "ismMapping": ["ISM-1510", "ISM-1511"]
+        "ismMapping": ["ISM-1510", "ISM-1511"],
+        "auditingInterval": "MONTHLY"
       }
     ]
   },
@@ -49,7 +51,9 @@
         "text": "Security vulnerabilities in applications are patched within 2 weeks of release, or within 48 hours if an active exploit is reported.",
         "expectedEvidence": ["Vulnerability scan report", "WSUS / Intune patching log", "Security advisory tracker"],
         "testType": ["api", "script"],
-        "ismMapping": ["ISM-1689", "ISM-1690"]
+        "ismMapping": ["ISM-1689", "ISM-1690"],
+        "patchingWindow": "2_WEEKS",
+        "activeExploitPatchingWindow": "48_HOURS"
       },
       {
         "id": "E8-PA-ML2-01",
@@ -57,7 +61,9 @@
         "text": "Web browsers, email clients, office suites, and PDF software are patched or updated within 2 weeks (or 48 hours for active exploits).",
         "expectedEvidence": ["App version audit export", "Update configuration report", "Patching dashboard screenshot"],
         "testType": ["api", "script"],
-        "ismMapping": ["ISM-1691"]
+        "ismMapping": ["ISM-1691"],
+        "patchingWindow": "2_WEEKS",
+        "activeExploitPatchingWindow": "48_HOURS"
       },
       {
         "id": "E8-PA-ML3-01",
@@ -65,7 +71,9 @@
         "text": "All application security vulnerabilities are scanned daily, and vendor support status is audited monthly.",
         "expectedEvidence": ["Daily Nessus/Qualys report", "Monthly vendor support audit record", "Software asset list"],
         "testType": ["api", "manual"],
-        "ismMapping": ["ISM-1692", "ISM-1693"]
+        "ismMapping": ["ISM-1692", "ISM-1693"],
+        "scanningFrequency": "DAILY",
+        "auditingInterval": "MONTHLY"
       }
     ]
   },
@@ -150,7 +158,8 @@
         "text": "Administrative privileges are audited at least every six months. Local administrator accounts are disabled or managed via a solution like LAPS.",
         "expectedEvidence": ["LAPS configuration logs", "Six-monthly privilege audit reports", "Local administrator inventory"],
         "testType": ["api", "script", "document_review"],
-        "ismMapping": ["ISM-1177", "ISM-1178"]
+        "ismMapping": ["ISM-1177", "ISM-1178"],
+        "auditingInterval": "6_MONTHS"
       },
       {
         "id": "E8-RP-ML3-01",
@@ -173,7 +182,9 @@
         "text": "Workstation and server operating systems are patched within 2 weeks of vendor release, or 48 hours for active exploits.",
         "expectedEvidence": ["OS patch compliance dashboard", "Update history log export", "Vulnerability management dashboard screenshot"],
         "testType": ["api", "script"],
-        "ismMapping": ["ISM-1498", "ISM-1499"]
+        "ismMapping": ["ISM-1498", "ISM-1499"],
+        "patchingWindow": "2_WEEKS",
+        "activeExploitPatchingWindow": "48_HOURS"
       },
       {
         "id": "E8-PO-ML2-01",
@@ -181,7 +192,9 @@
         "text": "Operating systems on network devices are patched within 2 weeks of vendor release, or 48 hours for active exploits.",
         "expectedEvidence": ["Firewall & switch version inventory", "Network device patching schedule", "Config review logs"],
         "testType": ["manual", "script"],
-        "ismMapping": ["ISM-1500"]
+        "ismMapping": ["ISM-1500"],
+        "patchingWindow": "2_WEEKS",
+        "activeExploitPatchingWindow": "48_HOURS"
       },
       {
         "id": "E8-PO-ML3-01",
@@ -189,7 +202,8 @@
         "text": "Daily checking for new OS updates is automated, and unsupported OS versions are decommissioned/segregated.",
         "expectedEvidence": ["Automatic patch checking config", "Lifecycle tracker for hardware/OS", "Vulnerability scanning engine configuration"],
         "testType": ["api", "script"],
-        "ismMapping": ["ISM-1501", "ISM-1502"]
+        "ismMapping": ["ISM-1501", "ISM-1502"],
+        "scanningFrequency": "DAILY"
       }
     ]
   },
@@ -235,7 +249,8 @@
         "text": "Backups of critical data, applications, and settings are performed at least weekly.",
         "expectedEvidence": ["Backup schedule config", "Weekly backup completion logs", "Backup console status reports"],
         "testType": ["manual", "api"],
-        "ismMapping": ["ISM-1512", "ISM-1513"]
+        "ismMapping": ["ISM-1512", "ISM-1513"],
+        "backupFrequency": "WEEKLY"
       },
       {
         "id": "E8-RB-ML2-01",
@@ -243,7 +258,8 @@
         "text": "Backups are stored in an offline or segregated manner, and restore tests are conducted at least annually.",
         "expectedEvidence": ["Air-gapped/ segregated backup architecture diagram", "Annual restore test execution log", "Backup configuration settings"],
         "testType": ["document_review", "manual"],
-        "ismMapping": ["ISM-1514", "ISM-1515"]
+        "ismMapping": ["ISM-1514", "ISM-1515"],
+        "restoreTestingInterval": "ANNUALLY"
       },
       {
         "id": "E8-RB-ML3-01",
@@ -251,7 +267,8 @@
         "text": "Backups are protected with write-once-read-many (WORM) storage or immutable policies, and restore tests are conducted at least quarterly.",
         "expectedEvidence": ["Immutable storage policy definition", "Quarterly restore test logs", "Access controls for backup repositories"],
         "testType": ["api", "manual"],
-        "ismMapping": ["ISM-1516", "ISM-1517"]
+        "ismMapping": ["ISM-1516", "ISM-1517"],
+        "restoreTestingInterval": "QUARTERLY"
       }
     ]
   }

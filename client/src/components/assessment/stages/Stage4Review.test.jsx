@@ -21,7 +21,9 @@ describe('Stage4Review Component', () => {
   const mockReq = {
     id: 'E8-AC-ML1-01',
     text: 'Workstation AppControl text',
-    expectedEvidence: ['Workstation logs']
+    expectedEvidence: ['Workstation logs'],
+    patchingWindow: '2_WEEKS',
+    activeExploitPatchingWindow: '48_HOURS'
   };
 
   const mockTest = {
@@ -51,6 +53,8 @@ describe('Stage4Review Component', () => {
 
     expect(screen.getByText('Stage 4: Compliance Review Desk')).toBeInTheDocument();
     expect(screen.getByText('Workstation logs')).toBeInTheDocument();
+    expect(screen.getByText('Patching SLA: 2 WEEKS')).toBeInTheDocument();
+    expect(screen.getByText('Active Exploit SLA: 48 HOURS')).toBeInTheDocument();
 
     const passedBtn = screen.getByRole('button', { name: 'EFFECTIVE' });
     fireEvent.click(passedBtn);
