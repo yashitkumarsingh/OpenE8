@@ -14,3 +14,4 @@ The core MVP skeleton of OpenE8 (importers, assessment workflows, status registr
 
 * **[evidence-packaging-zip.md](evidence-packaging-zip.md)**: Details the design of Sprint 3 unencrypted evidence ZIP packagers, `manifest.json` generation, and assessor verification checksums.
 * **[continuous-collectors.md](continuous-collectors.md)**: Guidelines for background drift scanning and real-time posture feeds.
+* **[compliance-drift-detection.md](compliance-drift-detection.md)**: Specifications for continuous monitoring, alert levels, and visual drift warnings.
