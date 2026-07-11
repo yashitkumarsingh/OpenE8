@@ -53,16 +53,16 @@ test.describe('OpenE8 Governance OS Full Audit Lifecycles', () => {
     await expect(tableRow).toBeVisible();
     await tableRow.click(); // transitions back to Graph inspect view
 
-    // Verify Graph fields are open and set a control to PASSED
+    // Verify Graph fields are open and set a control to EFFECTIVE
     await expect(page.locator('label:has-text("Expected Evidence Type")')).toBeVisible();
-    await page.click('button:has-text("PASSED")');
+    await page.click('button:has-text("EFFECTIVE")');
     await page.fill('textarea[placeholder*="Describe current findings"]', 'All verification checks completed by Assessor.');
-
+ 
     // 5. Navigate to Stage 5: Exceptions
     await page.click('[data-testid="stage-step-5"]');
     await page.waitForTimeout(500);
     await page.getByRole('button', { name: 'Log Exception Request', exact: true }).click();
-
+ 
     // Populate Exception Request details
     await page.fill('[data-testid="exception-input-riskStatement"]', 'Exposure on secondary backup system.');
     await page.fill('[data-testid="exception-input-compensatingControl"]', 'Air-gapped offline storage vaults.');
@@ -71,47 +71,99 @@ test.describe('OpenE8 Governance OS Full Audit Lifecycles', () => {
     await page.fill('[data-testid="exception-input-reviewDate"]', '2027-06-30');
     await page.fill('[data-testid="exception-input-expiryDate"]', '2027-12-31');
     await page.click('[data-testid="exception-submit"]');
-
+ 
     // Confirm exception request is shown in register list
     await expect(page.locator('span:has-text("Chief Risk Officer")')).toBeVisible();
-
+ 
     // 6. Navigate to Stage 6: Report and Sign off as Assessor
     await page.click('[data-testid="stage-step-6"]');
     await page.waitForTimeout(500);
     await page.fill('[data-testid="sign-input-assessor"]', 'Lead Security Assessor Signature');
     await page.click('[data-testid="sign-button-assessor"]');
-
+ 
     // Verify Assessor sign status changed to PENDING to SIGNED
     await expect(page.locator('span:has-text("✓ SIGNED")').first()).toBeVisible();
-
+ 
     // Logout Assessor session
     await page.click('[data-testid="logout-button"]');
-
+ 
     // 7. Authenticate as System Owner to perform dual signature sign-off
     await page.fill('[data-testid="login-email"]', 'owner@opene8.gov.au');
     await page.fill('[data-testid="login-password"]', 'Password123');
     await page.click('[data-testid="login-submit"]');
-
+ 
     // Wait for dropdown select options to load
     await page.waitForTimeout(500);
-
+ 
     // Switch to our new system profile
     const selector = page.locator('[data-testid="system-selector"]');
     await selector.selectOption({ label: systemName });
-
+ 
     // Navigate to Assessment Desk and select Stage 6: Report
     await page.click('[data-testid="nav-tab-assessment"]');
     await page.click('[data-testid="stage-step-6"]');
     await page.waitForTimeout(500);
-
+ 
     // Perform Owner Sign-off
     await page.fill('[data-testid="sign-input-owner"]', 'RMS System Owner Signature');
     await page.click('[data-testid="sign-button-owner"]');
-
+ 
     // Verify assessment status transitioned to COMPLETED & LOCKED
     await expect(page.locator('span:has-text("COMPLETED & LOCKED")')).toBeVisible();
-
+ 
     // Clean up Assessor Sign Out
+    await page.click('[data-testid="logout-button"]');
+  });
+
+  test('should support uploading, checksum validation, and downloading of evidence files', async ({ page }) => {
+    // 1. Authenticate as Assessor
+    await page.goto('/');
+    await page.fill('[data-testid="login-email"]', 'assessor@opene8.gov.au');
+    await page.fill('[data-testid="login-password"]', 'Password123');
+    await page.click('[data-testid="login-submit"]');
+
+    // 2. Select default RMS system
+    await page.waitForTimeout(500);
+    const selector = page.locator('[data-testid="system-selector"]');
+    await selector.selectOption({ label: 'Records Management System (RMS)' });
+
+    // 3. Navigate to Assessment Workspace -> Stage 3: Evidence
+    await page.click('[data-testid="nav-tab-assessment"]');
+    await page.click('[data-testid="stage-step-3"]');
+    await expect(page.locator('[data-testid="evidence-tab-list"]')).toBeVisible();
+
+    // 4. Click Upload Evidence button
+    await page.click('[data-testid="add-evidence-button"]');
+
+    // 5. Populate upload form fields
+    await page.fill('[placeholder="e.g. Entra CA Policy Screenshot"]', 'E2E Compliance Screenshot');
+    await page.fill('[placeholder="e.g. Entra ID / Sentinel"]', 'E2E Local Host');
+    await page.fill('[placeholder="e.g. SecOps Lead"]', 'E2E Compliance Owner');
+    await page.selectOption('select:has-text("File / Document")', 'FILE');
+    await page.selectOption('select:has-text("Excellent")', 'EXCELLENT');
+
+    // Attach mock file content via file inputs
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.click('input[type="file"]');
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles({
+      name: 'e2e-evidence.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('OpenE8 E2E Checksum Verification Contents')
+    });
+
+    // Click submit
+    await page.click('button[type="submit"]:has-text("Upload Evidence")');
+
+    // 6. Verify evidence card is rendered in lists
+    const card = page.locator('div.rounded-lg', { hasText: 'E2E Compliance Screenshot' }).first();
+    await expect(card.locator('span:has-text("★ EXCELLENT")').first()).toBeVisible();
+
+    // 7. Recalculate checksum integrity
+    await card.locator('button:has-text("Verify")').first().click();
+    await expect(card.locator('button:has-text("VERIFIED")').first()).toBeVisible();
+
+    // Logout
     await page.click('[data-testid="logout-button"]');
   });
 });

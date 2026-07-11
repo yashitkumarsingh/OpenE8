@@ -63,7 +63,7 @@ graph TD
 OpenE8 adheres to strict Domain-Driven Design (DDD) guidelines. All calculations, database transactions, and route operations are decoupled to maintain statement coverage and modular flexibility:
 
 ### 1. Decoupled Business Core
-All compliance engine logic is isolated in [maturityEngine.js](file:///Users/yashitkumarsingh/dev/OpenE8/server/src/maturityEngine.js). It computes scores using primitive inputs (tests lists, catalog values, exception matrices) and executes without database hooks or express server dependencies. This ensures calculation code remains testable.
+All compliance engine logic is isolated in [maturityEngine.js](../server/src/maturityEngine.js). It computes scores using primitive inputs (tests lists, catalog values, exception matrices) and executes without database hooks or express server dependencies. This ensures calculation code remains testable.
 
 ### 2. Delivery Independence
 Routers (`server/src/routes/`) handle HTTP request inputs and parameter validation, immediately handing execution off to Controllers (`server/src/controllers/`) which manage ORM transactions and DB query bindings.
@@ -92,7 +92,7 @@ OpenE8/
 
 ## Database Schemas & Relations
 
-Database schemas are defined in [schema.prisma](file:///Users/yashitkumarsingh/dev/OpenE8/server/prisma/schema.prisma) and map to a local SQLite instance during development. The key entities include:
+Database schemas are defined in [schema.prisma](../server/prisma/schema.prisma) and map to a local SQLite instance during development. The key entities include:
 
 - **System**: Represents the scoping boundary (Owner, sensitivity, platform, out-of-scope reasons).
 - **Assessment**: Tracks a point-in-time compliance checkpoint.

@@ -66,4 +66,28 @@ describe('LoginPage Component', () => {
     fireEvent.click(submitBtn);
     expect(onSubmit).toHaveBeenCalled();
   });
+
+  it('triggers Microsoft Entra ID authentication redirect on click', () => {
+    const originalLocation = window.location;
+    delete window.location;
+    window.location = { href: '', origin: 'http://localhost' };
+
+    render(
+      <LoginPage
+        loginEmail=""
+        setLoginEmail={() => {}}
+        loginPassword=""
+        setLoginPassword={() => {}}
+        loginError=""
+        onSubmit={() => {}}
+      />
+    );
+
+    const entraBtn = screen.getByRole('button', { name: /Sign in with Microsoft Entra ID/i });
+    fireEvent.click(entraBtn);
+
+    expect(window.location.href).toContain('login.microsoftonline.com');
+
+    window.location = originalLocation;
+  });
 });

@@ -10,7 +10,7 @@ This guide describes the steps required to configure the development workspace, 
 - **Server and Client Environment**: Ensure Node.js version **v22.14.0** or newer is used (NVM can manage local version switches).
 - **Environment Path Override**: In custom shells, prepend the NVM binaries paths:
   ```bash
-  export PATH="/Users/yashitkumarsingh/.nvm/versions/node/v22.14.0/bin:$PATH"
+  export PATH="$HOME/.nvm/versions/node/v22.14.0/bin:$PATH"
   ```
 
 ---
