@@ -1,10 +1,21 @@
 # Spec: Evidence ZIP Packager & Unified Verification Manifest
 
+## 1. Goal & Context
 This specification documents the requirements, endpoint architectures, and schema design for packaging all evidence files and audit trails of an assessment into a secure, unencrypted, self-contained ZIP archive.
 
----
+## 2. First Principles Analysis
+- **Problem Essence**: Packaging all evidence documents, change logs, and executive reports into an offline-portable, verifiable packet.
+- **Assumptions Challenged**:
+  | Assumption | Challenge | Verdict |
+  |---|---|---|
+  | ZIP packages must be encrypted | Key recovery / escrow adds coordination complexity. | Discard. Keep ZIP unencrypted and verify integrity via a signed manifest. |
+  | Store ZIP on remote portal | Requires active network access for independent auditors. | Discard. Support local downloads for offline porting. |
+- **Ground Truths**:
+  1. Audit reports must compile into markdown formats.
+  2. All evidence file SHA-255 hashes must be mapped in a manifest file.
+- **Reasoning Chain**: Portability demands standard formats (ZIP, Markdown, CSV). Security is achieved through cryptographic manifest signatures rather than file encryption.
 
-## 1. Directory Structure of Packed ZIP
+## 3. Directory Structure of Packed ZIP
 
 When an assessor requests a package download for a completed assessment, the system must build a zip archive with the following layout:
 
@@ -18,9 +29,7 @@ When an assessor requests a package download for a completed assessment, the sys
     └── backup-schedules.txt
 ```
 
----
-
-## 2. Manifest Schema (`manifest.json`)
+## 4. Manifest Schema (`manifest.json`)
 
 The manifest contains metadata, overall scores, and a hash validation table mapping every evidence file to its filename and SHA-256 fingerprint:
 
@@ -43,7 +52,7 @@ The manifest contains metadata, overall scores, and a hash validation table mapp
 
 ---
 
-## 3. Unified Executive Report Requirements
+## 5. Unified Executive Report Requirements
 
 The generated `assessment-summary.md` executive report must incorporate:
 1. Boundary scope parameters and justifications.

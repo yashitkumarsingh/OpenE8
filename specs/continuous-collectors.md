@@ -1,10 +1,21 @@
 # Spec: Continuous Evidence Collectors (Azure/AWS Config)
 
+## 1. Goal & Context
 This specification defines the endpoint interface and background daemon architecture for orchestrating automated, continuous evidence collectors (such as periodic Azure Conditional Access reports or AWS Config rule audits) into the OpenE8 database.
 
----
+## 2. First Principles Analysis
+- **Problem Essence**: Safely transporting external system compliance states to candidate findings in our local database via automated agents.
+- **Assumptions Challenged**:
+  | Assumption | Challenge | Verdict |
+  |---|---|---|
+  | Collectors run as active server microservices | Increases attack surface and hosting costs. | Discard. Keep collectors as lightweight client webhooks. |
+  | OpenE8 must poll remote APIs | Storing tenant credentials on our local DB increases security risk. | Discard. Pulling is handled by external agents that push to OpenE8. |
+- **Ground Truths**:
+  1. OpenE8 server must not store third-party client credentials/keys on disk.
+  2. Incoming payloads must be validated for authenticity immediately.
+- **Reasoning Chain**: Pushing payloads via webhooks keeps OpenE8 stateless regarding external API tokens, satisfying security constraints.
 
-## 1. Architecture Flow
+## 3. Architecture Flow
 
 ```text
 [Cloud Environment] 
@@ -20,9 +31,7 @@ This specification defines the endpoint interface and background daemon architec
 [Database finding candidates] ───► [Assessor Review Alert Trigger]
 ```
 
----
-
-## 2. API Schema Contract
+## 4. API Schema Contract
 
 ### Request Endpoint
 `POST /api/importers/automated`
@@ -53,7 +62,7 @@ Content-Type: application/json
 
 ---
 
-## 3. Boundary Schema Constraints (Matt Pocock Philosophy)
+## 5. Boundary Schema Constraints (Matt Pocock Philosophy)
 
 1. **Authentication Gate**: Collectors must use unique cryptographically signed machine tokens (verified via dynamic public certificates or secrets).
 2. **Timing-Safe Hash Audits**: The payload must supply a `verificationHash` representing the signature of the raw collector outputs. OpenE8 will match it before persisting candidates.
@@ -61,7 +70,7 @@ Content-Type: application/json
 
 ---
 
-## 4. Verification Matrix (Andrej Karpathy Philosophy)
+## 6. Verification Matrix (Andrej Karpathy Philosophy)
 
 - **Test Case 1**: Webhook payload with missing parameters returns `400 Bad Request`.
 - **Test Case 2**: Valid webhook payload registers `PASS_CANDIDATE` findings inside the targeted system assessment test log.
