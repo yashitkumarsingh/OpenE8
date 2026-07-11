@@ -53,7 +53,10 @@ function runTests() {
     {
       requirementId: 'E8-AC-ML1-01',
       status: 'APPROVED',
-      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10) // 10 days in future
+      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10), // 10 days in future
+      compensatingControlEfficacy: 'HIGH',
+      riskAcceptedBy: 'CISO',
+      riskAcceptedAt: new Date()
     }
   ];
   const result3 = calculateMaturity(catalog, assessmentOneFailed, exceptions, 'ML2');
@@ -61,12 +64,44 @@ function runTests() {
   assert(result3.overallMaturity === 'ML3', 'Overall maturity should remain ML3 since exception is approved and active');
   assert(result3.technicalMaturity === 'ML0', 'Technical maturity must remain ML0 (ignoring exceptions)');
 
+  // Test Case 3b: Failed control WITH an approved exception but MEDIUM efficacy -> should downgrade
+  const mediumEfficacyExceptions = [
+    {
+      requirementId: 'E8-AC-ML1-01',
+      status: 'APPROVED',
+      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
+      compensatingControlEfficacy: 'MEDIUM',
+      riskAcceptedBy: 'CISO',
+      riskAcceptedAt: new Date()
+    }
+  ];
+  const result3b = calculateMaturity(catalog, assessmentOneFailed, mediumEfficacyExceptions, 'ML2');
+  assert(result3b.strategyScores['Application Control'] === 'ML0', 'Medium efficacy exceptions must not bypass downgrading');
+  assert(result3b.overallMaturity === 'ML0', 'Overall maturity must downgrade for medium efficacy exceptions');
+
+  // Test Case 3c: Failed control WITH an approved exception but missing risk acceptance -> should downgrade
+  const unsignedExceptions = [
+    {
+      requirementId: 'E8-AC-ML1-01',
+      status: 'APPROVED',
+      expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
+      compensatingControlEfficacy: 'HIGH',
+      riskAcceptedBy: null,
+      riskAcceptedAt: null
+    }
+  ];
+  const result3c = calculateMaturity(catalog, assessmentOneFailed, unsignedExceptions, 'ML2');
+  assert(result3c.strategyScores['Application Control'] === 'ML0', 'Unsigned exceptions must not bypass downgrading');
+
   // Test Case 4: Failed control WITH an EXPIRED exception -> should downgrade
   const expiredExceptions = [
     {
       requirementId: 'E8-AC-ML1-01',
       status: 'APPROVED',
-      expiryDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1) // expired yesterday
+      expiryDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1), // expired yesterday
+      compensatingControlEfficacy: 'HIGH',
+      riskAcceptedBy: 'CISO',
+      riskAcceptedAt: new Date()
     }
   ];
   const result4 = calculateMaturity(catalog, assessmentOneFailed, expiredExceptions, 'ML2');

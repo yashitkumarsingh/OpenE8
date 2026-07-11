@@ -31,10 +31,16 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
     resultsMap[tr.requirementId] = tr.status;
   });
 
-  // Map active exceptions
+  // Map active exceptions (requires approved status, unexpired date, high efficacy, and risk owner signature)
   const activeExceptions = new Set(
     safeExceptions
-      .filter(ex => ex.status === 'APPROVED' && new Date(ex.expiryDate) > new Date())
+      .filter(ex => 
+        ex.status === 'APPROVED' && 
+        new Date(ex.expiryDate) > new Date() &&
+        ex.compensatingControlEfficacy === 'HIGH' &&
+        ex.riskAcceptedBy && typeof ex.riskAcceptedBy === 'string' && ex.riskAcceptedBy.trim() !== '' &&
+        ex.riskAcceptedAt
+      )
       .map(ex => ex.requirementId)
   );
 

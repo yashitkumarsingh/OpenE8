@@ -202,8 +202,10 @@ async function runControllerTests() {
       status: 'APPROVED',
       riskStatement: 'Operational limitation testing',
       compensatingControl: 'Additional firewall rules',
+      compensatingControlEfficacy: 'HIGH',
       residualRisk: 'LOW',
       approvedBy: 'CISO Office',
+      riskAcceptedBy: 'Lead Risk Owner CISO',
       reviewDate: new Date(),
       expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5)
     };

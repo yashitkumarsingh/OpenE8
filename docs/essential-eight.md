@@ -34,13 +34,13 @@ A major operational bottleneck for security teams is legacy systems or service a
 
 OpenE8 resolves this bottleneck by implementing **Approved Exception Override Gates**:
 
-1. **Approved Exception**: If a control test fails (e.g. `E8-AC-ML1-01` is INEFFECTIVE) but there is an active, approved exception in the database, the engine treats it as a mitigating control.
-2. **Expiry Verification**: The engine verifies the expiration date on every exception during execution:
-   - If `status === 'APPROVED'` and `new Date(expiryDate) > new Date()`, the override gate is **Active**. The failure is bypassed, and the assessed strategy score is not downgraded.
-   - If the current date exceeds `expiryDate`, the exception is marked **Expired**. The override gate is deactivated, and the assessed strategy score immediately downgrades.
-3. **Maturity Postures Split**:
+1. **Approved Exception & Compensating Control Override**: If a control test fails (e.g. `E8-AC-ML1-01` is INEFFECTIVE) but there is an active, approved exception in the database, the engine treats it as a mitigating control if it satisfies the following rules:
+   - **Efficacy Threshold**: The compensating control's efficacy rating must be assessor-rated as **`HIGH`**.
+   - **Risk Acceptance**: A formal risk owner must accept the residual risk (`riskAcceptedBy` is signed and `riskAcceptedAt` timestamp is recorded).
+   - **Expiry Verification**: The exception must be currently active (`status === 'APPROVED'` and `new Date(expiryDate) > new Date()`).
+2. **Postures Split**:
    - **Technical Maturity (Raw Score)**: Computed strictly from technical passes without compensating overrides or exceptions.
-   - **Assessed Maturity (Mitigated Score)**: Evaluated including CISO-approved compensating controls and active exceptions.
+   - **Assessed Maturity (Mitigated Score)**: Evaluated including CISO-approved compensating controls and active exceptions that satisfy the requirements above.
 
 ---
 
