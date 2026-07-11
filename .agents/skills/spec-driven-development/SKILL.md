@@ -35,15 +35,24 @@ All specification documents created under the `specs/` directory must follow thi
 ## 1. Goal & Context
 Brief statement describing the problem, business rules alignment, and targeted outcome.
 
-## 2. Boundary Contracts (Inputs & Outputs)
+## 2. First Principles Analysis
+- **Problem Essence**: Define the core values and constraints of the feature.
+- **Assumptions Challenged**: List and refute common conventional assumptions:
+  | Assumption | Challenge | Verdict |
+  |---|---|---|
+  | ... | ... | ... |
+- **Ground Truths**: Enumerate absolute, verifiable facts (e.g. "Lead assessor must sign off").
+- **Reasoning Chain**: Link facts logically to the chosen implementation pattern.
+
+## 3. Boundary Contracts (Inputs & Outputs)
 - Document the exact JSON/Object payload structures.
 - Detail the validation checks (types, size limits, whitelists).
 
-## 3. Data Persistence Design
+## 4. Data Persistence Design
 - If db fields change, document the Prisma schema delta.
 - Outline the seeding/migration path.
 
-## 4. Verification Matrix (The Loss Function)
+## 5. Verification Matrix (The Loss Function)
 - Define the unit tests to add/modify.
 - Define the integration/E2E test workflow script.
 ```
