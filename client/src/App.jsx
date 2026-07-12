@@ -605,8 +605,18 @@ export default function App() {
   const chartData = selectedSystem?.maturity ? Object.entries(selectedSystem.maturity.strategyScores).map(([name, val]) => {
     const valMap = { 'ML0': 0, 'ML1': 1, 'ML2': 2, 'ML3': 3 };
     const targetMap = { 'ML1': 1, 'ML2': 2, 'ML3': 3 };
+    const shortNames = {
+      "Application Control": "App Control",
+      "Patch Applications": "Patch Apps",
+      "Configure Microsoft Office Macro Settings": "Office Macros",
+      "User Application Hardening": "App Hardening",
+      "Restrict Administrative Privileges": "Admin Privs",
+      "Patch Operating Systems": "Patch OS",
+      "Multi-factor Authentication": "MFA",
+      "Regular Backups": "Backups"
+    };
     return {
-      name: name.substring(0, 16) + '...',
+      name: shortNames[name] || name,
       fullName: name,
       Current: valMap[val] || 0,
       Target: targetMap[selectedSystem.targetMaturity] || 2

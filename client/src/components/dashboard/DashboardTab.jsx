@@ -110,6 +110,10 @@ export default function DashboardTab({
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
                   labelStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+                  labelFormatter={(value, payload) => {
+                    const item = payload?.[0]?.payload;
+                    return item ? item.fullName : value;
+                  }}
                 />
                 <Legend verticalAlign="top" height={36} iconType="circle" wrapperStyle={{ fontSize: '11px', wrapperAlign: 'center', fontWeight: 'semibold' }} />
                 <Bar dataKey="Target" fill="#3b82f6" fillOpacity={0.15} stroke="#3b82f6" strokeWidth={1.5} radius={[4, 4, 0, 0]} />
