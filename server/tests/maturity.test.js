@@ -135,6 +135,11 @@ function runTests() {
   const resultMalformed3 = calculateMaturity(catalog, assessmentAllPassed, null);
   assert(resultMalformed3.overallMaturity === 'ML3', 'Should handle null exceptions safely');
 
+  // Test Case 6: Empty catalog must report ML0, never a falsely-perfect ML3
+  const resultEmptyCatalog = calculateMaturity([], assessmentAllPassed, []);
+  assert(resultEmptyCatalog.overallMaturity === 'ML0', 'Empty catalog must report ML0 assessed maturity');
+  assert(resultEmptyCatalog.technicalMaturity === 'ML0', 'Empty catalog must report ML0 technical maturity');
+
   console.log('\nAll Maturity Engine tests passed successfully!');
 }
 

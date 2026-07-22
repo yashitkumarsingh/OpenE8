@@ -1,3 +1,15 @@
+// Essential Eight overall posture is the LOWEST maturity across all scored strategies
+// (ASD lowest-common-denominator model). With no strategies scored — e.g. an empty
+// catalogue — the posture is ML0: never assume a maturity level that was never assessed.
+function lowestMaturity(strategyScores) {
+  const levelsOrder = ['ML0', 'ML1', 'ML2', 'ML3'];
+  const levels = Object.values(strategyScores);
+  if (levels.length === 0) return 'ML0';
+  return levels.reduce((lowest, level) =>
+    levelsOrder.indexOf(level) < levelsOrder.indexOf(lowest) ? level : lowest
+  );
+}
+
 export function calculateMaturity(catalog, assessment, exceptions, targetMaturity = 'ML2') {
   // Defensive validation of inputs
   if (!catalog || !Array.isArray(catalog)) {
@@ -108,27 +120,9 @@ export function calculateMaturity(catalog, assessment, exceptions, targetMaturit
     strategyScores[strategy.strategy] = assessedLevel;
   });
 
-  // Calculate overall Technical Maturity
-  let technicalMaturity = 'ML3';
-  let techMinIdx = 3;
-  Object.values(technicalScores).forEach(level => {
-    const idx = levelsOrder.indexOf(level);
-    if (idx < techMinIdx) {
-      techMinIdx = idx;
-      technicalMaturity = level;
-    }
-  });
-
-  // Calculate overall Assessed Maturity
-  let overallMaturity = 'ML3';
-  let assessedMinIdx = 3;
-  Object.values(strategyScores).forEach(level => {
-    const idx = levelsOrder.indexOf(level);
-    if (idx < assessedMinIdx) {
-      assessedMinIdx = idx;
-      overallMaturity = level;
-    }
-  });
+  // Calculate overall Technical and Assessed Maturity (lowest scored strategy; ML0 if none)
+  const technicalMaturity = lowestMaturity(technicalScores);
+  const overallMaturity = lowestMaturity(strategyScores);
 
   // Find strategies blocking target maturity in assessed scores
   const blockingStrategies = [];
