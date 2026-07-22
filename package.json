@@ -17,6 +17,8 @@
     "test:server": "cd server && npm run test",
     "test:coverage": "cd server && npm run test:coverage",
     "build:client": "cd client && npm run build",
+    "docs:mappings": "node scripts/generate-ism-mapping.mjs",
+    "docs:check-mappings": "node scripts/generate-ism-mapping.mjs --check",
     "test:e2e": "playwright test",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && husky || true"
   },

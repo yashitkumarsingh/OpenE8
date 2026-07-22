@@ -19,5 +19,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# 3. Ensure the ISM mapping docs are in sync with the control catalogue
+echo "Checking ISM mapping table is in sync with controls.json..."
+npm run docs:check-mappings
+if [ $? -ne 0 ]; then
+  echo "❌ Error: docs/essential-eight.md is out of sync with controls.json. Run 'npm run docs:mappings'."
+  exit 1
+fi
+
 echo "✅ Quality gate passed! Proceeding with commit..."
 exit 0
