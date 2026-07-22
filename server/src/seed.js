@@ -68,12 +68,14 @@ Validation: Verification scripts check block integrity daily.`;
   const catalog = JSON.parse(catalogRaw);
   const catalogHash = crypto.createHash('sha256').update(catalogRaw).digest('hex');
 
-  // Seed the catalog version record (Essential Eight October 2024)
+  // Seed the catalog version record.
+  // Aligned to the ASD Essential Eight Maturity Model (last revised Nov 2023).
+  // ISM control mappings in this catalogue are PROVISIONAL — see data/essential-eight/PROVENANCE.md.
   const catalogVersion = await prisma.controlCatalogVersion.create({
     data: {
-      name: 'Starter Catalogue (Inspired by ASD Essential 8 October 2024)',
-      source: 'https://www.cyber.gov.au/resources-business-and-government/essential-cyber-security/essential-eight/essential-eight-maturity-model',
-      versionDate: new Date('2024-10-01'),
+      name: 'Starter Catalogue — ASD Essential Eight Maturity Model (Nov 2023); ISM mappings provisional',
+      source: 'https://www.cyber.gov.au/resources-business-and-government/essential-eight/essential-eight-maturity-model',
+      versionDate: new Date('2023-11-02'),
       hash: catalogHash,
     }
   });

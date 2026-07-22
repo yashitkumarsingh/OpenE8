@@ -143,8 +143,8 @@ model User {
 
 model ControlCatalogVersion {
   id          String       @id @default(uuid())
-  name        String       // e.g. "Essential Eight Oct 2024"
-  source      String       // e.g. "https://cyber.gov.au/acsc/view-all-content/publications/essential-eight-maturity-model"
+  name        String       // e.g. "Starter Catalogue — ASD Essential Eight Maturity Model (Nov 2023)"
+  source      String       // e.g. "https://www.cyber.gov.au/resources-business-and-government/essential-eight/essential-eight-maturity-model"
   versionDate DateTime
   hash        String?      // SHA-256 of the controls.json file at time of seeding (tamper-check)
   createdAt   DateTime     @default(now())
